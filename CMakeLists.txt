@@ -30,6 +30,8 @@ juce_add_plugin(FBTECH_DRUM_LOOP
     COPY_PLUGIN_AFTER_BUILD FALSE
 )
 
+juce_generate_juce_header(FBTECH_DRUM_LOOP)
+
 target_sources(FBTECH_DRUM_LOOP PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
@@ -43,12 +45,13 @@ target_compile_definitions(FBTECH_DRUM_LOOP PUBLIC
     JUCE_VST3_CAN_REPLACE_VST2=0
 )
 
-target_link_libraries(FBTECH_DRUM_LOOP PRIVATE
-    juce::juce_audio_utils
-    juce::juce_audio_processors
-    juce::juce_gui_extra
+target_link_libraries(FBTECH_DRUM_LOOP
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_audio_processors
+        juce::juce_gui_extra
     PUBLIC
-    juce::juce_recommended_config_flags
-    juce::juce_recommended_lto_flags
-    juce::juce_recommended_warning_flags
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
 )
