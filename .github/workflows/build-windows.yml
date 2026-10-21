@@ -1,36 +1,42 @@
-name: Build Windows VST3
+
+name: Build FBTECH DRUM LOOP VST3
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
-    timeout-minutes: 45
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
 
-      - name: Configure MSVC
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
       - name: Configure CMake
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build VST3
-        run: cmake --build build --config Release --target FBTECH_DRUM_LOOP_VST3
+        run: cmake --build build --config Release --parallel
 
-      - name: Upload VST3 artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
+        if: success()
         with:
-          name: FBTECH-DRUM-LOOP-Windows-VST3
-          path: build/FBTECH_DRUM_LOOP_artefacts/Release/VST3/FBTECH DRUM LOOP.vst3
+          name: FBTECH-DRUM-LOOP-Windows-x64
+          path: |
+            build/**/*.vst3
+            build/**/*.zip
           if-no-files-found: error
-          retention-days: 14
