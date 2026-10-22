@@ -158,7 +158,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
     {
         const auto letter = juce::String::charToString(static_cast<juce_wchar>('A' + bank));
         const auto label = queued == bank ? "NEXT " : playing == bank ? "PLAYING " : "PATTERN ";
-        patternButtons[bank].setButtonText(label + letter);
+        patternButtons[bank].setButtonText(juce::String(label) + letter);
         patternButtons[bank].setColour(juce::TextButton::buttonColourId,
             queued == bank ? juce::Colour(0xffb45309) :
             playing == bank ? juce::Colour(0xff0d9488) :
@@ -177,7 +177,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
     {
         const auto letter = juce::String::charToString(static_cast<juce_wchar>('A' + bank));
         const auto label = queued == bank ? "NEXT " : playing == bank ? "PLAYING " : "PATTERN ";
-        patternButtons[bank].setButtonText(label + letter);
+        patternButtons[bank].setButtonText(juce::String(label) + letter);
         patternButtons[bank].setColour(juce::TextButton::buttonColourId,
             queued == bank ? juce::Colour(0xffb45309) :
             playing == bank ? juce::Colour(0xff0d9488) : juce::Colour(0xff334155));
