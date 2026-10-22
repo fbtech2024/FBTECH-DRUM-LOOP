@@ -111,6 +111,9 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     stopAtEndToggle.setToggleState(processor.isStopAtEnd(), juce::dontSendNotification);
     stopAtEndToggle.onClick = [this] { processor.setStopAtEnd(stopAtEndToggle.getToggleState()); };
     addAndMakeVisible(stopAtEndToggle);
+    autoFillToggle.setToggleState(processor.isAutoFill(), juce::dontSendNotification);
+    autoFillToggle.onClick = [this] { processor.setAutoFill(autoFillToggle.getToggleState()); };
+    addAndMakeVisible(autoFillToggle);
     const juce::StringArray sectionNames { "INTRO A", "VERSE B", "CHORUS C", "OUTRO D" };
     for (int i = 0; i < 4; ++i)
     {
@@ -170,7 +173,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         sectionBars[i].setBounds(265 + i * 195, 405, 90, 26);
     }
     stopAtEndToggle.setBounds(30, 440, 150, 28);
-    songStatus.setBounds(190, 440, 750, 28);
+    autoFillToggle.setBounds(190, 440, 130, 28);
+    songStatus.setBounds(330, 440, 610, 28);
     kitButton.setBounds(26, 521, 170, 32);
     playButton.setBounds(344, 521, 105, 32);
     stopButton.setBounds(459, 521, 105, 32);
