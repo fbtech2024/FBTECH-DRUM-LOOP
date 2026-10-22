@@ -18,6 +18,10 @@ private:
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
     juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
     juce::TextButton fillButton { "FILL NEXT BAR" };
+    juce::ToggleButton songToggle { "SONG MODE" };
+    juce::Slider sectionBars[4];
+    juce::Label sectionLabels[4];
+    juce::Label songStatus;
     juce::TextButton loadButtons[4];
     juce::TextButton patternButtons[4];
     void refreshPatternButtons();
