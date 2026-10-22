@@ -235,7 +235,6 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         playingPattern.store(selectedPattern.load());
         songSection.store(0);
         songBarCount = 0;
-        songFinished.store(false);
         lastStep = -1;
         wasPlaying = false;
         fillActive = false;
