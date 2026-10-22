@@ -31,6 +31,17 @@ bool FBTECHDRUMLOOPAudioProcessor::isBusesLayoutSupported(const BusesLayout& lay
     return out == juce::AudioChannelSet::mono() || out == juce::AudioChannelSet::stereo();
 }
 
+void FBTECHDRUMLOOPAudioProcessor::setInstrumentVolume(int instrument, float value) noexcept
+{
+    if (instrument >= 0 && instrument < instrumentCount)
+        instrumentVolumes[instrument].store(juce::jlimit(0.0f, 1.5f, value));
+}
+
+float FBTECHDRUMLOOPAudioProcessor::getInstrumentVolume(int instrument) const noexcept
+{
+    return instrument >= 0 && instrument < instrumentCount ? instrumentVolumes[instrument].load() : 1.0f;
+}
+
 bool FBTECHDRUMLOOPAudioProcessor::getStep(int instrument, int step) const
 {
     return instrument >= 0 && instrument < instrumentCount && step >= 0 && step < stepCount
@@ -219,7 +230,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
 
         float mixed = 0.0f;
         for (int inst = 0; inst < instrumentCount; ++inst)
-            mixed += renderInstrument(inst);
+            mixed += renderInstrument(inst) * instrumentVolumes[inst].load();
         mixed = std::tanh(mixed * 1.3f) * 0.72f;
         for (int ch = 0; ch < channels; ++ch)
             buffer.setSample(ch, sample, mixed);
@@ -236,7 +247,9 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
             state += pattern[inst][step] ? '1' : '0';
     auto xml = std::make_unique<juce::XmlElement>("FBTECH_DRUM_LOOP_STATE");
     xml->setAttribute("pattern", state);
-    xml->setAttribute("version", 1);
+    for (int i = 0; i < instrumentCount; ++i)
+        xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
+    xml->setAttribute("version", 2);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -244,6 +257,8 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
 {
     std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
     if (xml == nullptr || !xml->hasTagName("FBTECH_DRUM_LOOP_STATE")) return;
+    for (int i = 0; i < instrumentCount; ++i)
+        setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
     const auto state = xml->getStringAttribute("pattern");
     if (state.length() != instrumentCount * stepCount) return;
     for (int inst = 0; inst < instrumentCount; ++inst)
