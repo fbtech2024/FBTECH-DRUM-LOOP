@@ -48,6 +48,9 @@ public:
     void setSongBars(int section, int bars) noexcept;
     int getSongBars(int section) const noexcept;
     int getSongSection() const noexcept { return songSection.load(); }
+    void setStopAtEnd(bool enabled) noexcept { stopAtEnd.store(enabled); }
+    bool isStopAtEnd() const noexcept { return stopAtEnd.load(); }
+    bool isSongFinished() const noexcept { return songFinished.load(); }
 
 private:
     static constexpr int instrumentCount = 4;
@@ -58,6 +61,8 @@ private:
     std::atomic<int> queuedPattern { -1 };
     std::atomic<bool> transportRunning { false };
     std::atomic<bool> songMode { false };
+    std::atomic<bool> stopAtEnd { false };
+    std::atomic<bool> songFinished { false };
     std::atomic<int> songBars[4] { 4, 8, 8, 4 };
     std::atomic<int> songSection { 0 };
     int songBarCount = 0;
