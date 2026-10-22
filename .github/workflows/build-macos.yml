@@ -1,0 +1,35 @@
+name: Build FBTECH DRUM LOOP VST3 macOS Intel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-macos-intel:
+    runs-on: macos-15-intel
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Configure CMake for Intel
+        run: cmake -S . -B build-mac -G Xcode -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+      - name: Build VST3
+        run: cmake --build build-mac --config Release --parallel 3
+      - name: Package VST3 bundle
+        run: |
+          set -eu
+          find build-mac -type d -name '*.vst3' -print
+          bundle="$(find build-mac -type d -name '*.vst3' -print -quit)"
+          test -n "$bundle"
+          ditto -c -k --sequesterRsrc --keepParent "$bundle" FBTECH-DRUM-LOOP-macOS-Intel.zip
+      - name: Upload VST3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FBTECH-DRUM-LOOP-macOS-Intel
+          path: FBTECH-DRUM-LOOP-macOS-Intel.zip
+          if-no-files-found: error
