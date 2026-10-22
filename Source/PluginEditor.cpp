@@ -61,6 +61,23 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     };
     addAndMakeVisible(clearButton);
 
+    kitButton.onClick = [this]
+    {
+        chooser = std::make_unique<juce::FileChooser>("Select a drum kit folder containing kick.wav, snare.wav, hihat.wav and tom.wav");
+        chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+            [this](const juce::FileChooser& fc)
+            {
+                if (processor.loadKitFolder(fc.getResult()))
+                {
+                    kitButton.setButtonText("KIT LOADED");
+                    for (auto& button : loadButtons) button.setButtonText("WAV OK");
+                }
+                else if (fc.getResult() != juce::File{})
+                    kitButton.setButtonText("INVALID KIT");
+            });
+    };
+    addAndMakeVisible(kitButton);
+
     // resized() accesses all 64 step buttons; create them before sizing the editor.
     setSize(760, 430);
 }
@@ -92,5 +109,6 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         for (int step = 0; step < 16; ++step)
             stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 34);
     }
+    kitButton.setBounds(26, 365, 170, 32);
     clearButton.setBounds(590, 365, 140, 32);
 }
