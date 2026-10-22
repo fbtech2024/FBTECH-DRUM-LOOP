@@ -196,7 +196,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
-    songStatus.setText(processor.isSongMode() ? "SONG ACTIVE - SECTION " + juce::String(processor.getSongSection() + 1) + " / 4" : "SONG OFF - manual pattern selection", juce::dontSendNotification);
+    songStatus.setText(processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / 4" : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
     const int playing = processor.getPlayingPattern();
     const int queued = processor.getQueuedPattern();
     for (int bank = 0; bank < 4; ++bank)
