@@ -30,6 +30,8 @@ public:
     bool getStep(int instrument, int step) const;
     void setStep(int instrument, int step, bool enabled);
     void clearPattern();
+    bool loadWav(int instrument, const juce::File& file);
+    juce::String getSampleName(int instrument) const;
     double getTempo() const noexcept { return tempoBpm; }
 
 private:
@@ -44,6 +46,11 @@ private:
     double snarePhase = 0.0, snareEnvelope = 0.0;
     double hatEnvelope = 0.0, tomPhase = 0.0, tomEnvelope = 0.0;
     juce::Random random;
+    struct SampleData { juce::AudioBuffer<float> audio; juce::String name; double sampleRate = 44100.0; };
+    std::shared_ptr<SampleData> samples[4];
+    std::shared_ptr<SampleData> activeSamples[4];
+    double samplePositions[4] { -1, -1, -1, -1 };
+    juce::AudioFormatManager formatManager;
 
     void triggerInstrument(int instrument);
     float renderInstrument(int instrument);
