@@ -9,10 +9,10 @@ FBTECHDRUMLOOPAudioProcessor::FBTECHDRUMLOOPAudioProcessor()
 {
     formatManager.registerBasicFormats();
     // Default 4/4 groove: kick, snare, eighth-note hats and one tom accent.
-    for (int s : { 0, 8 }) pattern[0][s] = true;
-    for (int s : { 4, 12 }) pattern[1][s] = true;
-    for (int s = 0; s < stepCount; s += 2) pattern[2][s] = true;
-    pattern[3][10] = true;
+    for (int s : { 0, 8 }) pattern[0][0][s] = true;
+    for (int s : { 4, 12 }) pattern[0][1][s] = true;
+    for (int s = 0; s < stepCount; s += 2) pattern[0][2][s] = true;
+    pattern[0][3][10] = true;
 }
 
 void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
@@ -42,21 +42,26 @@ float FBTECHDRUMLOOPAudioProcessor::getInstrumentVolume(int instrument) const no
     return instrument >= 0 && instrument < instrumentCount ? instrumentVolumes[instrument].load() : 1.0f;
 }
 
+void FBTECHDRUMLOOPAudioProcessor::selectPattern(int index) noexcept
+{
+    if (index >= 0 && index < 4) selectedPattern.store(index);
+}
+
 bool FBTECHDRUMLOOPAudioProcessor::getStep(int instrument, int step) const
 {
     return instrument >= 0 && instrument < instrumentCount && step >= 0 && step < stepCount
-        ? pattern[instrument][step] : false;
+        ? pattern[selectedPattern.load()][instrument][step] : false;
 }
 
 void FBTECHDRUMLOOPAudioProcessor::setStep(int instrument, int step, bool enabled)
 {
     if (instrument >= 0 && instrument < instrumentCount && step >= 0 && step < stepCount)
-        pattern[instrument][step] = enabled;
+        pattern[selectedPattern.load()][instrument][step] = enabled;
 }
 
 void FBTECHDRUMLOOPAudioProcessor::clearPattern()
 {
-    for (auto& row : pattern)
+    for (auto& row : pattern[selectedPattern.load()])
         for (bool& step : row) step = false;
 }
 
@@ -224,7 +229,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         if (step != lastStep)
         {
             for (int inst = 0; inst < instrumentCount; ++inst)
-                if (pattern[inst][step]) triggerInstrument(inst);
+                if (pattern[selectedPattern.load()][inst][step]) triggerInstrument(inst);
             lastStep = step;
         }
 
@@ -241,15 +246,20 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
 
 void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    juce::String state;
-    for (int inst = 0; inst < instrumentCount; ++inst)
-        for (int step = 0; step < stepCount; ++step)
-            state += pattern[inst][step] ? '1' : '0';
     auto xml = std::make_unique<juce::XmlElement>("FBTECH_DRUM_LOOP_STATE");
-    xml->setAttribute("pattern", state);
+    for (int bank = 0; bank < 4; ++bank)
+    {
+        juce::String bits;
+        for (int inst = 0; inst < instrumentCount; ++inst)
+            for (int step = 0; step < stepCount; ++step)
+                bits += pattern[bank][inst][step] ? '1' : '0';
+        xml->setAttribute("pattern" + juce::String(bank), bits);
+    }
+    xml->setAttribute("pattern", xml->getStringAttribute("pattern0"));
+    xml->setAttribute("selectedPattern", selectedPattern.load());
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
-    xml->setAttribute("version", 2);
+    xml->setAttribute("version", 3);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -257,13 +267,18 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
 {
     std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
     if (xml == nullptr || !xml->hasTagName("FBTECH_DRUM_LOOP_STATE")) return;
+    for (int bank = 0; bank < 4; ++bank)
+    {
+        const auto key = "pattern" + juce::String(bank);
+        const auto bits = xml->getStringAttribute(key, bank == 0 ? xml->getStringAttribute("pattern") : juce::String());
+        if (bits.length() != instrumentCount * stepCount) continue;
+        for (int inst = 0; inst < instrumentCount; ++inst)
+            for (int step = 0; step < stepCount; ++step)
+                pattern[bank][inst][step] = bits[inst * stepCount + step] == '1';
+    }
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
-    const auto state = xml->getStringAttribute("pattern");
-    if (state.length() != instrumentCount * stepCount) return;
-    for (int inst = 0; inst < instrumentCount; ++inst)
-        for (int step = 0; step < stepCount; ++step)
-            pattern[inst][step] = state[inst * stepCount + step] == '1';
+    selectPattern(xml->getIntAttribute("selectedPattern", 0));
 }
 
 juce::AudioProcessorEditor* FBTECHDRUMLOOPAudioProcessor::createEditor()
