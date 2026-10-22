@@ -41,7 +41,7 @@ public:
     double getTempo() const noexcept { return tempoBpm; }
     void setInstrumentVolume(int instrument, float value) noexcept;
     float getInstrumentVolume(int instrument) const noexcept;
-    void setManualPlaying(bool playing) noexcept { manualPlaying.store(playing); }
+    void setManualPlaying(bool playing) noexcept { if (playing) songFinished.store(false); manualPlaying.store(playing); }
     bool isManualPlaying() const noexcept { return manualPlaying.load(); }
     void setSongMode(bool enabled) noexcept { songMode.store(enabled); }
     bool isSongMode() const noexcept { return songMode.load(); }
