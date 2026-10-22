@@ -92,8 +92,20 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     addAndMakeVisible(playButton);
     addAndMakeVisible(stopButton);
 
+    for (int bank = 0; bank < 4; ++bank)
+    {
+        patternButtons[bank].setButtonText("PATTERN " + juce::String::charToString(static_cast<juce_wchar>('A' + bank)));
+        patternButtons[bank].onClick = [this, bank]
+        {
+            processor.selectPattern(bank);
+            refreshPatternButtons();
+        };
+        addAndMakeVisible(patternButtons[bank]);
+    }
+    refreshPatternButtons();
+
     // resized() accesses all 64 step buttons; create them before sizing the editor.
-    setSize(980, 430);
+    setSize(980, 480);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -124,8 +136,23 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         for (int step = 0; step < 16; ++step)
             stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 34);
     }
-    kitButton.setBounds(26, 365, 170, 32);
-    playButton.setBounds(250, 365, 105, 32);
-    stopButton.setBounds(365, 365, 105, 32);
-    clearButton.setBounds(808, 365, 140, 32);
+    for (int bank = 0; bank < 4; ++bank)
+        patternButtons[bank].setBounds(284 + bank * 120, 353, 112, 30);
+    kitButton.setBounds(26, 411, 170, 32);
+    playButton.setBounds(344, 411, 105, 32);
+    stopButton.setBounds(459, 411, 105, 32);
+    clearButton.setBounds(808, 411, 140, 32);
+}
+
+void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
+{
+    const int selected = processor.getSelectedPattern();
+    for (int bank = 0; bank < 4; ++bank)
+    {
+        patternButtons[bank].setColour(juce::TextButton::buttonColourId,
+            bank == selected ? juce::Colour(0xff0d9488) : juce::Colour(0xff334155));
+    }
+    for (int inst = 0; inst < 4; ++inst)
+        for (int step = 0; step < 16; ++step)
+            stepButtons[inst * 16 + step]->setToggleState(processor.getStep(inst, step), juce::dontSendNotification);
 }
