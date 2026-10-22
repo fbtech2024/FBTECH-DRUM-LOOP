@@ -53,6 +53,10 @@ public:
     bool isSongFinished() const noexcept { return songFinished.load(); }
     void setAutoFill(bool enabled) noexcept { autoFill.store(enabled); }
     bool isAutoFill() const noexcept { return autoFill.load(); }
+    void setSongLength(int count) noexcept { songLength.store(juce::jlimit(1, 8, count)); }
+    int getSongLength() const noexcept { return songLength.load(); }
+    void setSongPattern(int section, int bank) noexcept;
+    int getSongPattern(int section) const noexcept;
 
 private:
     static constexpr int instrumentCount = 4;
@@ -66,7 +70,9 @@ private:
     std::atomic<bool> stopAtEnd { false };
     std::atomic<bool> autoFill { false };
     std::atomic<bool> songFinished { false };
-    std::atomic<int> songBars[4] { 4, 8, 8, 4 };
+    std::atomic<int> songLength { 4 };
+    std::atomic<int> songPattern[8] { 0, 1, 2, 3, 1, 2, 1, 3 };
+    std::atomic<int> songBars[8] { 4, 8, 8, 4, 8, 8, 8, 4 };
     std::atomic<int> songSection { 0 };
     int songBarCount = 0;
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
