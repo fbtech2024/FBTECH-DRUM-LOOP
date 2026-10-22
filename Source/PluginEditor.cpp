@@ -108,6 +108,9 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     songToggle.setToggleState(processor.isSongMode(), juce::dontSendNotification);
     songToggle.onClick = [this] { processor.setSongMode(songToggle.getToggleState()); };
     addAndMakeVisible(songToggle);
+    stopAtEndToggle.setToggleState(processor.isStopAtEnd(), juce::dontSendNotification);
+    stopAtEndToggle.onClick = [this] { processor.setStopAtEnd(stopAtEndToggle.getToggleState()); };
+    addAndMakeVisible(stopAtEndToggle);
     const juce::StringArray sectionNames { "INTRO A", "VERSE B", "CHORUS C", "OUTRO D" };
     for (int i = 0; i < 4; ++i)
     {
@@ -166,7 +169,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         sectionLabels[i].setBounds(175 + i * 195, 405, 90, 26);
         sectionBars[i].setBounds(265 + i * 195, 405, 90, 26);
     }
-    songStatus.setBounds(30, 440, 800, 28);
+    stopAtEndToggle.setBounds(30, 440, 150, 28);
+    songStatus.setBounds(190, 440, 750, 28);
     kitButton.setBounds(26, 521, 170, 32);
     playButton.setBounds(344, 521, 105, 32);
     stopButton.setBounds(459, 521, 105, 32);
@@ -196,7 +200,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
-    songStatus.setText(processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / 4" : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
+    songStatus.setText(processor.isSongFinished() ? juce::String("SONG FINISHED - press PLAY to restart") : processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / 4" : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
     const int playing = processor.getPlayingPattern();
     const int queued = processor.getQueuedPattern();
     for (int bank = 0; bank < 4; ++bank)
