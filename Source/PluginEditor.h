@@ -15,7 +15,7 @@ private:
     juce::Label title, tempoLabel, hint;
     juce::Label instrumentLabels[4];
     juce::TextButton clearButton { "CLEAR PATTERN" };
-    juce::TextButton loadButtons[4] { {"LOAD WAV"}, {"LOAD WAV"}, {"LOAD WAV"}, {"LOAD WAV"} };
+    juce::TextButton loadButtons[4];
     std::unique_ptr<juce::FileChooser> chooser;
     juce::OwnedArray<juce::TextButton> stepButtons;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FBTECHDRUMLOOPAudioProcessorEditor)
