@@ -7,6 +7,7 @@ namespace { constexpr double twoPi = juce::MathConstants<double>::twoPi; }
 FBTECHDRUMLOOPAudioProcessor::FBTECHDRUMLOOPAudioProcessor()
     : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true))
 {
+    formatManager.registerBasicFormats();
     // Default 4/4 groove: kick, snare, eighth-note hats and one tom accent.
     for (int s : { 0, 8 }) pattern[0][s] = true;
     for (int s : { 4, 12 }) pattern[1][s] = true;
@@ -47,8 +48,32 @@ void FBTECHDRUMLOOPAudioProcessor::clearPattern()
         for (bool& step : row) step = false;
 }
 
+bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& file)
+{
+    if (instrument < 0 || instrument >= instrumentCount || !file.existsAsFile()) return false;
+    std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
+    if (!reader || reader->lengthInSamples <= 0 || reader->lengthInSamples > 44100 * 60 || reader->numChannels == 0) return false;
+    auto data = std::make_shared<SampleData>();
+    data->audio.setSize(1, static_cast<int>(reader->lengthInSamples));
+    if (!reader->read(&data->audio, 0, data->audio.getNumSamples(), 0, true, false)) return false;
+    data->sampleRate = reader->sampleRate;
+    data->name = file.getFileName();
+    std::atomic_store(&samples[instrument], data);
+    return true;
+}
+
+juce::String FBTECHDRUMLOOPAudioProcessor::getSampleName(int instrument) const
+{
+    if (instrument < 0 || instrument >= instrumentCount) return {};
+    auto data = std::atomic_load(&samples[instrument]);
+    return data ? data->name : juce::String("Synth (default)");
+}
+
 void FBTECHDRUMLOOPAudioProcessor::triggerInstrument(int instrument)
 {
+    auto sample = std::atomic_load(&samples[instrument]);
+    if (sample) { activeSamples[instrument] = sample; samplePositions[instrument] = 0; return; }
+    samplePositions[instrument] = -1;
     switch (instrument)
     {
         case 0: kickPhase = 0.0; kickEnvelope = 1.0; break;
@@ -61,6 +86,23 @@ void FBTECHDRUMLOOPAudioProcessor::triggerInstrument(int instrument)
 
 float FBTECHDRUMLOOPAudioProcessor::renderInstrument(int instrument)
 {
+    if (samplePositions[instrument] >= 0 && activeSamples[instrument])
+    {
+        const auto& data = *activeSamples[instrument];
+        const auto& audio = data.audio;
+        const double pos = samplePositions[instrument];
+        const int index = static_cast<int>(pos);
+        if (index + 1 < audio.getNumSamples())
+        {
+            const float fraction = static_cast<float>(pos - index);
+            const float result = audio.getSample(0, index) * (1.0f - fraction) + audio.getSample(0, index + 1) * fraction;
+            samplePositions[instrument] += data.sampleRate / currentSampleRate;
+            return result;
+        }
+        samplePositions[instrument] = -1;
+        activeSamples[instrument].reset();
+        return 0.0f;
+    }
     const double sr = currentSampleRate;
     switch (instrument)
     {
