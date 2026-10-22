@@ -28,6 +28,7 @@ void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
     playingPattern.store(selectedPattern.load());
     songSection.store(0);
     songBarCount = 0;
+    songFinished.store(false);
 }
 
 void FBTECHDRUMLOOPAudioProcessor::releaseResources() {}
@@ -234,6 +235,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         playingPattern.store(selectedPattern.load());
         songSection.store(0);
         songBarCount = 0;
+        songFinished.store(false);
         lastStep = -1;
         wasPlaying = false;
         fillActive = false;
@@ -252,9 +254,11 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         if (!hostPlaying) freeRunPpq = 0.0;
         songSection.store(0);
         songBarCount = 0;
+        songFinished.store(false);
         if (songMode.load()) playingPattern.store(0);
     }
     wasPlaying = true;
+    if (songFinished.load()) return;
     const double beatsPerSample = tempoBpm / (60.0 * currentSampleRate);
     const double startPpq = freeRunPpq;
     const int channels = buffer.getNumChannels();
@@ -275,6 +279,12 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                         if (songBarCount >= getSongBars(section))
                         {
                             songBarCount = 0;
+                            if (section == 3 && stopAtEnd.load())
+                            {
+                                songFinished.store(true);
+                                manualPlaying.store(false);
+                                break;
+                            }
                             songSection.store((section + 1) % 4);
                         }
                     }
@@ -304,6 +314,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             lastStep = step;
         }
 
+        if (songFinished.load()) break;
         float mixed = 0.0f;
         for (int inst = 0; inst < instrumentCount; ++inst)
             mixed += renderInstrument(inst) * instrumentVolumes[inst].load();
@@ -329,6 +340,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     xml->setAttribute("pattern", xml->getStringAttribute("pattern0"));
     xml->setAttribute("selectedPattern", selectedPattern.load());
     xml->setAttribute("songMode", songMode.load());
+    xml->setAttribute("stopAtEnd", stopAtEnd.load());
     for (int section = 0; section < 4; ++section)
         xml->setAttribute("songBars" + juce::String(section), getSongBars(section));
     for (int i = 0; i < instrumentCount; ++i)
@@ -353,6 +365,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
     songMode.store(xml->getBoolAttribute("songMode", false));
+    stopAtEnd.store(xml->getBoolAttribute("stopAtEnd", false));
     for (int section = 0; section < 4; ++section)
         setSongBars(section, xml->getIntAttribute("songBars" + juce::String(section), section == 0 || section == 3 ? 4 : 8));
     transportRunning.store(false);
