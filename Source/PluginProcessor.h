@@ -31,6 +31,7 @@ public:
     void setStep(int instrument, int step, bool enabled);
     void clearPattern();
     void selectPattern(int index) noexcept;
+    void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
     bool loadWav(int instrument, const juce::File& file);
     bool loadKitFolder(const juce::File& folder);
@@ -53,6 +54,8 @@ private:
     int lastStep = -1;
     std::atomic<bool> manualPlaying { false };
     bool wasPlaying = false;
+    std::atomic<bool> fillRequested { false };
+    bool fillActive = false;
     double kickPhase = 0.0, kickEnvelope = 0.0;
     double snarePhase = 0.0, snareEnvelope = 0.0;
     double hatEnvelope = 0.0, tomPhase = 0.0, tomEnvelope = 0.0;
