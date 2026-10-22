@@ -106,6 +106,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         addAndMakeVisible(patternButtons[bank]);
     }
     refreshPatternButtons();
+    startTimerHz(12);
 
     // resized() accesses all 64 step buttons; create them before sizing the editor.
     setSize(980, 480);
@@ -151,12 +152,34 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
 void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 {
     const int selected = processor.getSelectedPattern();
+    const int playing = processor.getPlayingPattern();
+    const int queued = processor.getQueuedPattern();
     for (int bank = 0; bank < 4; ++bank)
     {
+        const auto letter = juce::String::charToString(static_cast<juce_wchar>('A' + bank));
+        const auto label = queued == bank ? "NEXT " : playing == bank ? "PLAYING " : "PATTERN ";
+        patternButtons[bank].setButtonText(label + letter);
         patternButtons[bank].setColour(juce::TextButton::buttonColourId,
-            bank == selected ? juce::Colour(0xff0d9488) : juce::Colour(0xff334155));
+            queued == bank ? juce::Colour(0xffb45309) :
+            playing == bank ? juce::Colour(0xff0d9488) :
+            bank == selected ? juce::Colour(0xff2563eb) : juce::Colour(0xff334155));
     }
     for (int inst = 0; inst < 4; ++inst)
         for (int step = 0; step < 16; ++step)
             stepButtons[inst * 16 + step]->setToggleState(processor.getStep(inst, step), juce::dontSendNotification);
+}
+
+void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
+{
+    const int playing = processor.getPlayingPattern();
+    const int queued = processor.getQueuedPattern();
+    for (int bank = 0; bank < 4; ++bank)
+    {
+        const auto letter = juce::String::charToString(static_cast<juce_wchar>('A' + bank));
+        const auto label = queued == bank ? "NEXT " : playing == bank ? "PLAYING " : "PATTERN ";
+        patternButtons[bank].setButtonText(label + letter);
+        patternButtons[bank].setColour(juce::TextButton::buttonColourId,
+            queued == bank ? juce::Colour(0xffb45309) :
+            playing == bank ? juce::Colour(0xff0d9488) : juce::Colour(0xff334155));
+    }
 }
