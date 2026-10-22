@@ -3,7 +3,6 @@
 FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRUMLOOPAudioProcessor& p)
     : AudioProcessorEditor(&p), processor(p)
 {
-    setSize(760, 360);
     title.setText("FBTECH DRUM LOOP", juce::dontSendNotification);
     title.setJustificationType(juce::Justification::centredLeft);
     title.setFont(juce::Font(juce::FontOptions(28.0f, juce::Font::bold)));
@@ -50,6 +49,9 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
             stepButtons[i]->setToggleState(false, juce::dontSendNotification);
     };
     addAndMakeVisible(clearButton);
+
+    // resized() accesses all 64 step buttons; create them before sizing the editor.
+    setSize(760, 360);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
