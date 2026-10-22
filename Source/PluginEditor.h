@@ -18,6 +18,7 @@ private:
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
     juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
     juce::TextButton loadButtons[4];
+    juce::Slider volumeSliders[4];
     std::unique_ptr<juce::FileChooser> chooser;
     juce::OwnedArray<juce::TextButton> stepButtons;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FBTECHDRUMLOOPAudioProcessorEditor)
