@@ -36,6 +36,13 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
                 });
         };
         addAndMakeVisible(loadButtons[inst]);
+        volumeSliders[inst].setSliderStyle(juce::Slider::LinearHorizontal);
+        volumeSliders[inst].setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 18);
+        volumeSliders[inst].setRange(0.0, 1.5, 0.01);
+        volumeSliders[inst].setValue(processor.getInstrumentVolume(inst), juce::dontSendNotification);
+        volumeSliders[inst].setColour(juce::Slider::thumbColourId, juce::Colour(0xff2dd4bf));
+        volumeSliders[inst].onValueChange = [this, inst] { processor.setInstrumentVolume(inst, static_cast<float>(volumeSliders[inst].getValue())); };
+        addAndMakeVisible(volumeSliders[inst]);
 
         for (int step = 0; step < 16; ++step)
         {
@@ -86,7 +93,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     addAndMakeVisible(stopButton);
 
     // resized() accesses all 64 step buttons; create them before sizing the editor.
-    setSize(760, 430);
+    setSize(980, 430);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -98,26 +105,27 @@ void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
     g.fillRoundedRectangle(18.0f, 74.0f, 5.0f, 210.0f, 2.0f);
     g.setColour(juce::Colour(0xff344556));
     for (int i = 0; i < 4; ++i)
-        g.drawLine(32.0f, 137.0f + i * 48.0f, 738.0f, 137.0f + i * 48.0f, 1.0f);
+        g.drawLine(32.0f, 137.0f + i * 48.0f, 948.0f, 137.0f + i * 48.0f, 1.0f);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::resized()
 {
     title.setBounds(24, 16, 430, 42);
-    tempoLabel.setBounds(480, 20, 250, 30);
+    tempoLabel.setBounds(700, 20, 250, 30);
     tempoLabel.setText("HOST TEMPO: " + juce::String(processor.getTempo(), 1) + " BPM", juce::dontSendNotification);
-    hint.setBounds(26, 54, 700, 24);
+    hint.setBounds(26, 54, 900, 24);
 
-    const int left = 112, top = 108, cellW = 37, gap = 3, rowH = 58;
+    const int left = 284, top = 108, cellW = 40, gap = 3, rowH = 58;
     for (int inst = 0; inst < 4; ++inst)
     {
         instrumentLabels[inst].setBounds(26, top + inst * rowH, 82, 22);
         loadButtons[inst].setBounds(26, top + inst * rowH + 24, 82, 25);
+        volumeSliders[inst].setBounds(122, top + inst * rowH, 150, 51);
         for (int step = 0; step < 16; ++step)
             stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 34);
     }
     kitButton.setBounds(26, 365, 170, 32);
     playButton.setBounds(250, 365, 105, 32);
     stopButton.setBounds(365, 365, 105, 32);
-    clearButton.setBounds(590, 365, 140, 32);
+    clearButton.setBounds(808, 365, 140, 32);
 }
