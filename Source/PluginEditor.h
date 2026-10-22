@@ -16,6 +16,7 @@ private:
     juce::Label instrumentLabels[4];
     juce::TextButton clearButton { "CLEAR PATTERN" };
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
+    juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
     juce::TextButton loadButtons[4];
     std::unique_ptr<juce::FileChooser> chooser;
     juce::OwnedArray<juce::TextButton> stepButtons;
