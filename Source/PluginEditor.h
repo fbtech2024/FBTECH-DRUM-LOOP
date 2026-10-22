@@ -20,6 +20,7 @@ private:
     juce::TextButton fillButton { "FILL NEXT BAR" };
     juce::ToggleButton songToggle { "SONG MODE" };
     juce::ToggleButton stopAtEndToggle { "STOP AT END" };
+    juce::ToggleButton autoFillToggle { "AUTO FILL" };
     juce::Slider sectionBars[4];
     juce::Label sectionLabels[4];
     juce::Label songStatus;
