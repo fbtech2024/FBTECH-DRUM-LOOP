@@ -21,8 +21,11 @@ private:
     juce::ToggleButton songToggle { "SONG MODE" };
     juce::ToggleButton stopAtEndToggle { "STOP AT END" };
     juce::ToggleButton autoFillToggle { "AUTO FILL" };
-    juce::Slider sectionBars[4];
-    juce::Label sectionLabels[4];
+    juce::Slider sectionBars[8];
+    juce::ComboBox sectionPatterns[8];
+    juce::Label sectionLabels[8];
+    juce::Slider songLengthSlider;
+    juce::Label songLengthLabel;
     juce::Label songStatus;
     juce::TextButton loadButtons[4];
     juce::TextButton patternButtons[4];
