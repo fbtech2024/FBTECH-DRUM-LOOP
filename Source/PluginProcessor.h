@@ -30,6 +30,8 @@ public:
     bool getStep(int instrument, int step) const;
     void setStep(int instrument, int step, bool enabled);
     void clearPattern();
+    void selectPattern(int index) noexcept;
+    int getSelectedPattern() const noexcept { return selectedPattern.load(); }
     bool loadWav(int instrument, const juce::File& file);
     bool loadKitFolder(const juce::File& folder);
     juce::String getSampleName(int instrument) const;
@@ -42,7 +44,8 @@ public:
 private:
     static constexpr int instrumentCount = 4;
     static constexpr int stepCount = 16;
-    bool pattern[instrumentCount][stepCount]{};
+    bool pattern[4][instrumentCount][stepCount]{};
+    std::atomic<int> selectedPattern { 0 };
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
