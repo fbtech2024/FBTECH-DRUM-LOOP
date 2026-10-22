@@ -62,6 +62,31 @@ bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& fil
     return true;
 }
 
+bool FBTECHDRUMLOOPAudioProcessor::loadKitFolder(const juce::File& folder)
+{
+    if (!folder.isDirectory()) return false;
+    const char* names[] = { "kick.wav", "snare.wav", "hihat.wav", "tom.wav" };
+    // Validate every sample first, avoiding partially loaded kits.
+    std::shared_ptr<SampleData> newKit[4];
+    for (int i = 0; i < instrumentCount; ++i)
+    {
+        const auto file = folder.getChildFile(names[i]);
+        if (!file.existsAsFile()) return false;
+        std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
+        if (!reader || reader->lengthInSamples <= 0 || reader->lengthInSamples > 44100 * 60
+            || reader->numChannels == 0 || reader->sampleRate <= 0.0) return false;
+        auto data = std::make_shared<SampleData>();
+        data->audio.setSize(1, static_cast<int>(reader->lengthInSamples));
+        if (!reader->read(&data->audio, 0, data->audio.getNumSamples(), 0, true, false)) return false;
+        data->sampleRate = reader->sampleRate;
+        data->name = folder.getFileName() + " / " + file.getFileName();
+        newKit[i] = std::move(data);
+    }
+    for (int i = 0; i < instrumentCount; ++i)
+        std::atomic_store(&samples[i], newKit[i]);
+    return true;
+}
+
 juce::String FBTECHDRUMLOOPAudioProcessor::getSampleName(int instrument) const
 {
     if (instrument < 0 || instrument >= instrumentCount) return {};
