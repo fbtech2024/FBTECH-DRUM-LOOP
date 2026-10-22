@@ -2,7 +2,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-class FBTECHDRUMLOOPAudioProcessorEditor final : public juce::AudioProcessorEditor
+class FBTECHDRUMLOOPAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     explicit FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRUMLOOPAudioProcessor&);
@@ -21,6 +21,7 @@ private:
     juce::TextButton loadButtons[4];
     juce::TextButton patternButtons[4];
     void refreshPatternButtons();
+    void timerCallback() override;
     juce::Slider volumeSliders[4];
     std::unique_ptr<juce::FileChooser> chooser;
     juce::OwnedArray<juce::TextButton> stepButtons;
