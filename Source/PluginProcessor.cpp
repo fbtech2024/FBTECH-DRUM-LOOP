@@ -23,6 +23,9 @@ void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
     wasPlaying = false;
     fillActive = false;
     fillRequested.store(false);
+    transportRunning.store(false);
+    queuedPattern.store(-1);
+    playingPattern.store(selectedPattern.load());
 }
 
 void FBTECHDRUMLOOPAudioProcessor::releaseResources() {}
@@ -46,7 +49,15 @@ float FBTECHDRUMLOOPAudioProcessor::getInstrumentVolume(int instrument) const no
 
 void FBTECHDRUMLOOPAudioProcessor::selectPattern(int index) noexcept
 {
-    if (index >= 0 && index < 4) selectedPattern.store(index);
+    if (index < 0 || index >= 4) return;
+    selectedPattern.store(index);
+    if (transportRunning.load())
+        queuedPattern.store(index == playingPattern.load() ? -1 : index);
+    else
+    {
+        queuedPattern.store(-1);
+        playingPattern.store(index);
+    }
 }
 
 bool FBTECHDRUMLOOPAudioProcessor::getStep(int instrument, int step) const
@@ -203,8 +214,11 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     }
 
     const bool running = hostPlaying || manualPlaying.load();
+    transportRunning.store(running);
     if (!running)
     {
+        queuedPattern.store(-1);
+        playingPattern.store(selectedPattern.load());
         lastStep = -1;
         wasPlaying = false;
         fillActive = false;
@@ -234,10 +248,12 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         {
             if (step == 0)
             {
+                const int next = queuedPattern.exchange(-1);
+                if (next >= 0 && next < 4) playingPattern.store(next);
                 fillActive = false;
                 if (fillRequested.exchange(false)) fillActive = true;
             }
-            const int bank = selectedPattern.load();
+            const int bank = playingPattern.load();
             for (int inst = 0; inst < instrumentCount; ++inst)
             {
                 bool hit = pattern[bank][inst][step];
@@ -297,6 +313,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     }
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
+    transportRunning.store(false);
     selectPattern(xml->getIntAttribute("selectedPattern", 0));
 }
 
