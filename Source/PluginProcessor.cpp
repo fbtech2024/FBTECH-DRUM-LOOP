@@ -21,6 +21,8 @@ void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
     freeRunPpq = 0.0;
     lastStep = -1;
     wasPlaying = false;
+    fillActive = false;
+    fillRequested.store(false);
 }
 
 void FBTECHDRUMLOOPAudioProcessor::releaseResources() {}
@@ -205,6 +207,8 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     {
         lastStep = -1;
         wasPlaying = false;
+        fillActive = false;
+        fillRequested.store(false);
         for (int i = 0; i < instrumentCount; ++i)
         {
             samplePositions[i] = -1;
@@ -228,8 +232,23 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         const int step = ((static_cast<int>(std::floor(ppq * 4.0 + 1.0e-7)) % stepCount) + stepCount) % stepCount;
         if (step != lastStep)
         {
+            if (step == 0)
+            {
+                fillActive = false;
+                if (fillRequested.exchange(false)) fillActive = true;
+            }
+            const int bank = selectedPattern.load();
             for (int inst = 0; inst < instrumentCount; ++inst)
-                if (pattern[selectedPattern.load()][inst][step]) triggerInstrument(inst);
+            {
+                bool hit = pattern[bank][inst][step];
+                if (fillActive)
+                {
+                    // One bar of extra snare and tom accents, without changing the saved groove.
+                    if (inst == 1 && (step == 6 || step == 10 || step == 12 || step == 14)) hit = true;
+                    if (inst == 3 && (step == 8 || step == 11 || step == 13 || step == 15)) hit = true;
+                }
+                if (hit) triggerInstrument(inst);
+            }
             lastStep = step;
         }
 
