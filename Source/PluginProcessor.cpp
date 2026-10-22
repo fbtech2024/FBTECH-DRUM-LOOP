@@ -20,6 +20,7 @@ void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
     currentSampleRate = sampleRate > 0.0 ? sampleRate : 44100.0;
     freeRunPpq = 0.0;
     lastStep = -1;
+    wasPlaying = false;
 }
 
 void FBTECHDRUMLOOPAudioProcessor::releaseResources() {}
@@ -169,7 +170,6 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     midi.clear();
 
     bool hostPlaying = false;
-    bool gotHostPpq = false;
     if (auto* playHead = getPlayHead())
     {
         if (auto info = playHead->getPosition())
@@ -179,12 +179,30 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 tempoBpm = *bpm;
             if (auto ppq = info->getPpqPosition(); ppq.hasValue())
             {
-                freeRunPpq = *ppq;
-                gotHostPpq = true;
+                if (hostPlaying) freeRunPpq = *ppq;
             }
         }
     }
 
+    const bool running = hostPlaying || manualPlaying.load();
+    if (!running)
+    {
+        lastStep = -1;
+        wasPlaying = false;
+        for (int i = 0; i < instrumentCount; ++i)
+        {
+            samplePositions[i] = -1;
+            activeSamples[i].reset();
+        }
+        kickEnvelope = snareEnvelope = hatEnvelope = tomEnvelope = 0.0;
+        return;
+    }
+    if (!wasPlaying)
+    {
+        lastStep = -1;
+        if (!hostPlaying) freeRunPpq = 0.0;
+    }
+    wasPlaying = true;
     const double beatsPerSample = tempoBpm / (60.0 * currentSampleRate);
     const double startPpq = freeRunPpq;
     const int channels = buffer.getNumChannels();
@@ -207,10 +225,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             buffer.setSample(ch, sample, mixed);
     }
 
-    if (!gotHostPpq)
-        freeRunPpq += beatsPerSample * buffer.getNumSamples();
-    else if (hostPlaying)
-        freeRunPpq = startPpq + beatsPerSample * buffer.getNumSamples();
+    freeRunPpq = startPpq + beatsPerSample * buffer.getNumSamples();
 }
 
 void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
