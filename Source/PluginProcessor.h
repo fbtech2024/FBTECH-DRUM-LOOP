@@ -34,6 +34,8 @@ public:
     bool loadKitFolder(const juce::File& folder);
     juce::String getSampleName(int instrument) const;
     double getTempo() const noexcept { return tempoBpm; }
+    void setInstrumentVolume(int instrument, float value) noexcept;
+    float getInstrumentVolume(int instrument) const noexcept;
     void setManualPlaying(bool playing) noexcept { manualPlaying.store(playing); }
     bool isManualPlaying() const noexcept { return manualPlaying.load(); }
 
@@ -41,6 +43,7 @@ private:
     static constexpr int instrumentCount = 4;
     static constexpr int stepCount = 16;
     bool pattern[instrumentCount][stepCount]{};
+    std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
     double freeRunPpq = 0.0;
