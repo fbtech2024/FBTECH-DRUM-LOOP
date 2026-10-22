@@ -33,6 +33,8 @@ public:
     void selectPattern(int index) noexcept;
     void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
+    int getPlayingPattern() const noexcept { return playingPattern.load(); }
+    int getQueuedPattern() const noexcept { return queuedPattern.load(); }
     bool loadWav(int instrument, const juce::File& file);
     bool loadKitFolder(const juce::File& folder);
     juce::String getSampleName(int instrument) const;
@@ -47,6 +49,9 @@ private:
     static constexpr int stepCount = 16;
     bool pattern[4][instrumentCount][stepCount]{};
     std::atomic<int> selectedPattern { 0 };
+    std::atomic<int> playingPattern { 0 };
+    std::atomic<int> queuedPattern { -1 };
+    std::atomic<bool> transportRunning { false };
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
