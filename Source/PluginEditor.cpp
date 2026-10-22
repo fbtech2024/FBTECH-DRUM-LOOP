@@ -25,6 +25,17 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         instrumentLabels[inst].setFont(juce::Font(juce::FontOptions(11.0f, juce::Font::bold)));
         instrumentLabels[inst].setJustificationType(juce::Justification::centredLeft);
         addAndMakeVisible(instrumentLabels[inst]);
+        loadButtons[inst].onClick = [this, inst]
+        {
+            chooser = std::make_unique<juce::FileChooser>("Select drum WAV", juce::File{}, "*.wav");
+            chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+                [this, inst](const juce::FileChooser& fc)
+                {
+                    if (processor.loadWav(inst, fc.getResult()))
+                        loadButtons[inst].setButtonText("WAV OK");
+                });
+        };
+        addAndMakeVisible(loadButtons[inst]);
 
         for (int step = 0; step < 16; ++step)
         {
@@ -51,7 +62,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     addAndMakeVisible(clearButton);
 
     // resized() accesses all 64 step buttons; create them before sizing the editor.
-    setSize(760, 360);
+    setSize(760, 430);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -73,12 +84,13 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     tempoLabel.setText("HOST TEMPO: " + juce::String(processor.getTempo(), 1) + " BPM", juce::dontSendNotification);
     hint.setBounds(26, 54, 700, 24);
 
-    const int left = 112, top = 96, cellW = 37, gap = 3, rowH = 43;
+    const int left = 112, top = 108, cellW = 37, gap = 3, rowH = 58;
     for (int inst = 0; inst < 4; ++inst)
     {
-        instrumentLabels[inst].setBounds(30, top + inst * rowH + 7, 78, 22);
+        instrumentLabels[inst].setBounds(26, top + inst * rowH, 82, 22);
+        loadButtons[inst].setBounds(26, top + inst * rowH + 24, 82, 25);
         for (int step = 0; step < 16; ++step)
             stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 34);
     }
-    clearButton.setBounds(590, 302, 140, 32);
+    clearButton.setBounds(590, 365, 140, 32);
 }
