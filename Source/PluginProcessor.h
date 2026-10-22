@@ -43,6 +43,11 @@ public:
     float getInstrumentVolume(int instrument) const noexcept;
     void setManualPlaying(bool playing) noexcept { manualPlaying.store(playing); }
     bool isManualPlaying() const noexcept { return manualPlaying.load(); }
+    void setSongMode(bool enabled) noexcept { songMode.store(enabled); }
+    bool isSongMode() const noexcept { return songMode.load(); }
+    void setSongBars(int section, int bars) noexcept;
+    int getSongBars(int section) const noexcept;
+    int getSongSection() const noexcept { return songSection.load(); }
 
 private:
     static constexpr int instrumentCount = 4;
@@ -52,6 +57,10 @@ private:
     std::atomic<int> playingPattern { 0 };
     std::atomic<int> queuedPattern { -1 };
     std::atomic<bool> transportRunning { false };
+    std::atomic<bool> songMode { false };
+    std::atomic<int> songBars[4] { 4, 8, 8, 4 };
+    std::atomic<int> songSection { 0 };
+    int songBarCount = 0;
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
