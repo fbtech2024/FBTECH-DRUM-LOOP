@@ -78,6 +78,13 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     };
     addAndMakeVisible(kitButton);
 
+    playButton.onClick = [this] { processor.setManualPlaying(true); };
+    stopButton.onClick = [this] { processor.setManualPlaying(false); };
+    playButton.setColour(juce::TextButton::buttonColourId, juce::Colour(0xff0d9488));
+    stopButton.setColour(juce::TextButton::buttonColourId, juce::Colour(0xff475569));
+    addAndMakeVisible(playButton);
+    addAndMakeVisible(stopButton);
+
     // resized() accesses all 64 step buttons; create them before sizing the editor.
     setSize(760, 430);
 }
@@ -110,5 +117,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
             stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 34);
     }
     kitButton.setBounds(26, 365, 170, 32);
+    playButton.setBounds(250, 365, 105, 32);
+    stopButton.setBounds(365, 365, 105, 32);
     clearButton.setBounds(590, 365, 140, 32);
 }
