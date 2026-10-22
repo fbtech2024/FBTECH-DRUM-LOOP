@@ -297,6 +297,9 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 }
                 fillActive = false;
                 if (fillRequested.exchange(false)) fillActive = true;
+                if (songMode.load() && autoFill.load() && songSection.load() < 3
+                    && songBarCount == getSongBars(songSection.load()) - 1)
+                    fillActive = true;
             }
             const int bank = playingPattern.load();
             for (int inst = 0; inst < instrumentCount; ++inst)
@@ -340,11 +343,12 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     xml->setAttribute("selectedPattern", selectedPattern.load());
     xml->setAttribute("songMode", songMode.load());
     xml->setAttribute("stopAtEnd", stopAtEnd.load());
+    xml->setAttribute("autoFill", autoFill.load());
     for (int section = 0; section < 4; ++section)
         xml->setAttribute("songBars" + juce::String(section), getSongBars(section));
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
-    xml->setAttribute("version", 4);
+    xml->setAttribute("version", 5);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -365,6 +369,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
     songMode.store(xml->getBoolAttribute("songMode", false));
     stopAtEnd.store(xml->getBoolAttribute("stopAtEnd", false));
+    autoFill.store(xml->getBoolAttribute("autoFill", false));
     for (int section = 0; section < 4; ++section)
         setSongBars(section, xml->getIntAttribute("songBars" + juce::String(section), section == 0 || section == 3 ? 4 : 8));
     transportRunning.store(false);
