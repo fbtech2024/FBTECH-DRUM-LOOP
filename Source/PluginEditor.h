@@ -17,6 +17,7 @@ private:
     juce::TextButton clearButton { "CLEAR PATTERN" };
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
     juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
+    juce::TextButton fillButton { "FILL NEXT BAR" };
     juce::TextButton loadButtons[4];
     juce::TextButton patternButtons[4];
     void refreshPatternButtons();
