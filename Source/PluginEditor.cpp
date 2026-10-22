@@ -105,11 +105,29 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         };
         addAndMakeVisible(patternButtons[bank]);
     }
+    songToggle.setToggleState(processor.isSongMode(), juce::dontSendNotification);
+    songToggle.onClick = [this] { processor.setSongMode(songToggle.getToggleState()); };
+    addAndMakeVisible(songToggle);
+    const juce::StringArray sectionNames { "INTRO A", "VERSE B", "CHORUS C", "OUTRO D" };
+    for (int i = 0; i < 4; ++i)
+    {
+        sectionLabels[i].setText(sectionNames[i], juce::dontSendNotification);
+        sectionLabels[i].setColour(juce::Label::textColourId, juce::Colours::white);
+        addAndMakeVisible(sectionLabels[i]);
+        sectionBars[i].setSliderStyle(juce::Slider::IncDecButtons);
+        sectionBars[i].setTextBoxStyle(juce::Slider::TextBoxLeft, false, 35, 22);
+        sectionBars[i].setRange(1, 32, 1);
+        sectionBars[i].setValue(processor.getSongBars(i), juce::dontSendNotification);
+        sectionBars[i].onValueChange = [this, i] { processor.setSongBars(i, static_cast<int>(sectionBars[i].getValue())); };
+        addAndMakeVisible(sectionBars[i]);
+    }
+    songStatus.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
+    addAndMakeVisible(songStatus);
     refreshPatternButtons();
     startTimerHz(12);
 
     // resized() accesses all 64 step buttons; create them before sizing the editor.
-    setSize(980, 480);
+    setSize(980, 590);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -142,11 +160,18 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     }
     for (int bank = 0; bank < 4; ++bank)
         patternButtons[bank].setBounds(284 + bank * 120, 353, 112, 30);
-    kitButton.setBounds(26, 411, 170, 32);
-    playButton.setBounds(344, 411, 105, 32);
-    stopButton.setBounds(459, 411, 105, 32);
-    fillButton.setBounds(580, 411, 175, 32);
-    clearButton.setBounds(808, 411, 140, 32);
+    songToggle.setBounds(30, 405, 130, 30);
+    for (int i = 0; i < 4; ++i)
+    {
+        sectionLabels[i].setBounds(175 + i * 195, 405, 90, 26);
+        sectionBars[i].setBounds(265 + i * 195, 405, 90, 26);
+    }
+    songStatus.setBounds(30, 440, 800, 28);
+    kitButton.setBounds(26, 521, 170, 32);
+    playButton.setBounds(344, 521, 105, 32);
+    stopButton.setBounds(459, 521, 105, 32);
+    fillButton.setBounds(580, 521, 175, 32);
+    clearButton.setBounds(808, 521, 140, 32);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
@@ -171,6 +196,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
+    songStatus.setText(processor.isSongMode() ? "SONG ACTIVE - SECTION " + juce::String(processor.getSongSection() + 1) + " / 4" : "SONG OFF - manual pattern selection", juce::dontSendNotification);
     const int playing = processor.getPlayingPattern();
     const int queued = processor.getQueuedPattern();
     for (int bank = 0; bank < 4; ++bank)
