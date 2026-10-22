@@ -31,6 +31,7 @@ public:
     void setStep(int instrument, int step, bool enabled);
     void clearPattern();
     bool loadWav(int instrument, const juce::File& file);
+    bool loadKitFolder(const juce::File& folder);
     juce::String getSampleName(int instrument) const;
     double getTempo() const noexcept { return tempoBpm; }
 
