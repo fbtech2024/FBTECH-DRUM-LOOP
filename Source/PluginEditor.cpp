@@ -114,12 +114,24 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     autoFillToggle.setToggleState(processor.isAutoFill(), juce::dontSendNotification);
     autoFillToggle.onClick = [this] { processor.setAutoFill(autoFillToggle.getToggleState()); };
     addAndMakeVisible(autoFillToggle);
-    const juce::StringArray sectionNames { "INTRO A", "VERSE B", "CHORUS C", "OUTRO D" };
-    for (int i = 0; i < 4; ++i)
+    songLengthLabel.setText("SECTIONS", juce::dontSendNotification);
+    songLengthLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    addAndMakeVisible(songLengthLabel);
+    songLengthSlider.setSliderStyle(juce::Slider::IncDecButtons);
+    songLengthSlider.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 35, 22);
+    songLengthSlider.setRange(1, 8, 1);
+    songLengthSlider.setValue(processor.getSongLength(), juce::dontSendNotification);
+    songLengthSlider.onValueChange = [this] { processor.setSongLength(static_cast<int>(songLengthSlider.getValue())); };
+    addAndMakeVisible(songLengthSlider);
+    for (int i = 0; i < 8; ++i)
     {
-        sectionLabels[i].setText(sectionNames[i], juce::dontSendNotification);
+        sectionLabels[i].setText("SLOT " + juce::String(i + 1), juce::dontSendNotification);
         sectionLabels[i].setColour(juce::Label::textColourId, juce::Colours::white);
         addAndMakeVisible(sectionLabels[i]);
+        sectionPatterns[i].addItemList(juce::StringArray { "PATTERN A", "PATTERN B", "PATTERN C", "PATTERN D" }, 1);
+        sectionPatterns[i].setSelectedId(processor.getSongPattern(i) + 1, juce::dontSendNotification);
+        sectionPatterns[i].onChange = [this, i] { processor.setSongPattern(i, sectionPatterns[i].getSelectedId() - 1); };
+        addAndMakeVisible(sectionPatterns[i]);
         sectionBars[i].setSliderStyle(juce::Slider::IncDecButtons);
         sectionBars[i].setTextBoxStyle(juce::Slider::TextBoxLeft, false, 35, 22);
         sectionBars[i].setRange(1, 32, 1);
@@ -133,7 +145,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     startTimerHz(12);
 
     // resized() accesses all 64 step buttons; create them before sizing the editor.
-    setSize(980, 590);
+    setSize(980, 740);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -167,19 +179,24 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     for (int bank = 0; bank < 4; ++bank)
         patternButtons[bank].setBounds(284 + bank * 120, 353, 112, 30);
     songToggle.setBounds(30, 405, 130, 30);
-    for (int i = 0; i < 4; ++i)
+    songLengthLabel.setBounds(175, 405, 85, 26);
+    songLengthSlider.setBounds(260, 405, 95, 26);
+    for (int i = 0; i < 8; ++i)
     {
-        sectionLabels[i].setBounds(175 + i * 195, 405, 90, 26);
-        sectionBars[i].setBounds(265 + i * 195, 405, 90, 26);
+        const int x = 30 + (i % 4) * 235;
+        const int y = 478 + (i / 4) * 55;
+        sectionLabels[i].setBounds(x, y, 65, 26);
+        sectionPatterns[i].setBounds(x + 65, y, 105, 26);
+        sectionBars[i].setBounds(x + 170, y, 65, 26);
     }
     stopAtEndToggle.setBounds(30, 440, 150, 28);
     autoFillToggle.setBounds(190, 440, 130, 28);
     songStatus.setBounds(330, 440, 610, 28);
-    kitButton.setBounds(26, 521, 170, 32);
-    playButton.setBounds(344, 521, 105, 32);
-    stopButton.setBounds(459, 521, 105, 32);
-    fillButton.setBounds(580, 521, 175, 32);
-    clearButton.setBounds(808, 521, 140, 32);
+    kitButton.setBounds(26, 665, 170, 32);
+    playButton.setBounds(344, 665, 105, 32);
+    stopButton.setBounds(459, 665, 105, 32);
+    fillButton.setBounds(580, 665, 175, 32);
+    clearButton.setBounds(808, 665, 140, 32);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
@@ -204,7 +221,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
-    songStatus.setText(processor.isSongFinished() ? juce::String("SONG FINISHED - press PLAY to restart") : processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / 4" : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
+    songStatus.setText(processor.isSongFinished() ? juce::String("SONG FINISHED - press PLAY to restart") : processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / " + juce::String(processor.getSongLength()) : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
     const int playing = processor.getPlayingPattern();
     const int queued = processor.getQueuedPattern();
     for (int bank = 0; bank < 4; ++bank)
