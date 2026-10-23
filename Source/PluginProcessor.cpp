@@ -10,6 +10,7 @@ FBTECHDRUMLOOPAudioProcessor::FBTECHDRUMLOOPAudioProcessor()
     : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true))
 {
     formatManager.registerBasicFormats();
+    for (auto& note : learnedNotes) note.store(-1);
     // Default 4/4 groove: kick, snare, eighth-note hats and one tom accent.
     for (int s : { 0, 8 }) pattern[0][0][s] = true;
     for (int s : { 4, 12 }) pattern[0][1][s] = true;
@@ -277,10 +278,10 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         if (!message.isNoteOn()) continue;
         const int note = message.getNoteNumber();
         const int learning = midiLearnInstrument.exchange(-1);
-        if (learning >= 0 && learning < instrumentCount)
+        if (learning >= 0 && learning < padCount)
         {
             // A note belongs to at most one learned instrument.
-            for (int inst = 0; inst < instrumentCount; ++inst)
+            for (int inst = 0; inst < padCount; ++inst)
                 if (inst != learning && learnedNotes[inst].load() == note)
                     learnedNotes[inst].store(-1);
             learnedNotes[learning].store(note);
@@ -288,7 +289,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         int instrument = -1;
         // A learned note takes precedence; each learned voice's original GM
         // aliases are suppressed so one note cannot accidentally play two voices.
-        for (int inst = 0; inst < instrumentCount; ++inst)
+        for (int inst = 0; inst < padCount; ++inst)
             if (learnedNotes[inst].load() == note) { instrument = inst; break; }
         if (instrument < 0)
         {
@@ -516,9 +517,9 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     }
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
-    for (int i = 0; i < instrumentCount; ++i)
+    for (int i = 0; i < padCount; ++i)
         xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
-    xml->setAttribute("version", 10);
+    xml->setAttribute("version", 11);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -541,7 +542,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
     // Normalize duplicate note assignments in malformed/older presets.
-    for (int i = 0; i < instrumentCount; ++i)
+    for (int i = 0; i < padCount; ++i)
     {
         const int note = juce::jlimit(-1, 127, xml->getIntAttribute("midiNote" + juce::String(i), -1));
         bool duplicate = false;
