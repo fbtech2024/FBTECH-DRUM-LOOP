@@ -300,15 +300,17 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         wasPlaying = false;
         fillActive = false;
         fillRequested.store(false);
-        for (int i = 0; i < instrumentCount; ++i)
-        {
-            samplePositions[i] = -1;
-            activeSamples[i].reset();
-        }
-        // Do not silence incoming live MIDI when the sequencer is stopped.
-        // Reset the old sequencer voices only when transport has just stopped.
+        // Clear sequencer voices only on the running-to-stopped transition.
+        // Clearing samples on every stopped block would truncate live MIDI WAV hits.
         if (wasPlaying)
+        {
+            for (int i = 0; i < instrumentCount; ++i)
+            {
+                samplePositions[i] = -1;
+                activeSamples[i].reset();
+            }
             kickEnvelope = snareEnvelope = hatEnvelope = tomEnvelope = 0.0;
+        }
     }
     if (running && !wasPlaying)
     {
