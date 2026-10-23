@@ -139,3 +139,6 @@
 
 ## 2026-10-23 — pad touchscreen
 - Nella vista BATTERIA ingranditi i 16 pad da 220x73 a 220x87 pixel, con maggiore spaziatura verticale; riallineati caricamento kit, fill e registrazione. La risposta al tocco e il comportamento musicale non sono stati ancora provati su hardware touch. I pad restano suoni sintetizzati se non sono caricati WAV reali. Build della revisione in attesa.
+
+## 2026-10-23 — superficie console pad
+- Vista BATTERIA: aggiunta una superficie grafica a gradiente tipo metallo satinato, cornice e separatori per la griglia dei 16 pad touchscreen; componenti e funzioni restano quelli del MASTER. Modifica grafica effettiva JUCE, non un mockup. La grafica complessiva non e' ancora una console definitiva; kit WAV acustici non inclusi. Compilazione di questo commit da verificare.
