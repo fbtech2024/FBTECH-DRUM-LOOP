@@ -111,8 +111,16 @@ bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& fil
         || static_cast<double>(reader->lengthInSamples) / reader->sampleRate > 60.0
         || reader->numChannels == 0) return false;
     auto data = std::make_shared<SampleData>();
-    data->audio.setSize(1, static_cast<int>(reader->lengthInSamples));
-    if (!reader->read(&data->audio, 0, data->audio.getNumSamples(), 0, true, false)) return false;
+    const int frames = static_cast<int>(reader->lengthInSamples);
+    juce::AudioBuffer<float> decoded(juce::jmin(2, static_cast<int>(reader->numChannels)), frames);
+    if (!reader->read(&decoded, 0, frames, 0, true, decoded.getNumChannels() > 1)) return false;
+    data->audio.setSize(1, frames);
+    for (int frame = 0; frame < frames; ++frame)
+    {
+        const float left = decoded.getSample(0, frame);
+        const float right = decoded.getNumChannels() > 1 ? decoded.getSample(1, frame) : left;
+        data->audio.setSample(0, frame, 0.5f * (left + right));
+    }
     data->sampleRate = reader->sampleRate;
     data->name = file.getFileName();
     std::atomic_store(&samples[instrument], data);
@@ -134,8 +142,16 @@ bool FBTECHDRUMLOOPAudioProcessor::loadKitFolder(const juce::File& folder)
             || static_cast<double>(reader->lengthInSamples) / reader->sampleRate > 60.0
             || reader->numChannels == 0) return false;
         auto data = std::make_shared<SampleData>();
-        data->audio.setSize(1, static_cast<int>(reader->lengthInSamples));
-        if (!reader->read(&data->audio, 0, data->audio.getNumSamples(), 0, true, false)) return false;
+        const int frames = static_cast<int>(reader->lengthInSamples);
+        juce::AudioBuffer<float> decoded(juce::jmin(2, static_cast<int>(reader->numChannels)), frames);
+        if (!reader->read(&decoded, 0, frames, 0, true, decoded.getNumChannels() > 1)) return false;
+        data->audio.setSize(1, frames);
+        for (int frame = 0; frame < frames; ++frame)
+        {
+            const float left = decoded.getSample(0, frame);
+            const float right = decoded.getNumChannels() > 1 ? decoded.getSample(1, frame) : left;
+            data->audio.setSample(0, frame, 0.5f * (left + right));
+        }
         data->sampleRate = reader->sampleRate;
         data->name = folder.getFileName() + " / " + file.getFileName();
         newKit[i] = std::move(data);
