@@ -108,3 +108,7 @@
 ## Feedback import WAV — 2026-10-23
 - Messaggi di successo/errore visibili e persistenti dopo il caricamento WAV dei singoli pad; annullamento dialogo ignorato.
 - Test CI e DAW da verificare.
+
+### 2026-10-23 — Separazione interfaccia
+- Introdotte tre viste SUONA / EDITOR RITMI / ARRANGIAMENTO e ridotta altezza plugin; motore audio invariato.
+- Mancano libreria ritmi e allineamento grafico al sito; CI e collaudo host in attesa.
