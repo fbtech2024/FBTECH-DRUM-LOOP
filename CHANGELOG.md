@@ -74,3 +74,9 @@
 - `pendingPadHits` espanso da quattro a sedici slot atomici, uno per pad.
 - I pad grafici passano il proprio indice al motore; il rendering conserva temporaneamente quattro voci per compatibilità.
 - Nessuna migrazione del formato preset in questa fase.
+
+## 16 slot WAV — 2026-10-23
+- Nuovi 16 slot indipendenti di campioni WAV, code e rendering; SHIFT+clic sul pad per caricare il WAV.
+- Preset formato 9 con campioni incorporati per tutti i pad, compatibilità lettura preset precedenti.
+- Nomi dei campioni mostrati alla riapertura editor.
+- Sequencer/MIDI Learn restano a quattro voci; build e test da verificare.
