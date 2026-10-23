@@ -82,3 +82,10 @@ Branch unico di sviluppo: main
 - Le note GM restano fallback: la stessa nota potrebbe attivare un fallback se assegnata in modo ambiguo. Gestione conflitti e reset mapping da completare.
 - Non implementati 16 mapping indipendenti, controllo knob/transport/LED ATOM, né test su hardware reale.
 - Commit UI 9b16b5e0: compilazione in attesa di esito.
+
+## MIDI Learn: conflitti e ripristino — 2026-10-23
+- Compilazione Windows e Mac Intel del MIDI Learn iniziale (commit 9b16b5e0) riuscita; test con hardware ancora mancanti.
+- Nuovo MIDI Learn rimuove l'eventuale precedente assegnazione della stessa nota a un'altra voce.
+- SHIFT+clic sul pulsante MIDI Learn elimina l'assegnazione della voce e disarma l'apprendimento.
+- Nota: il fallback General MIDI rimane attivo e può produrre conflitti semantici se una nota GM viene rimappata; richiede ulteriore verifica.
+- Nuove build ancora da confermare.
