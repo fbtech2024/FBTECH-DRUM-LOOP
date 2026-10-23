@@ -63,3 +63,9 @@ Branch unico di sviluppo: main
 - Risolto errore di stato introdotto nella gestione MIDI live: `wasPlaying` veniva azzerato prima del controllo transizione e impostato true anche a trasporto fermo.
 - Commit ed70a32e: ora transizione arresto/avvio viene tracciata correttamente; compilazione e test di regressione ancora da verificare.
 - Priorità: non introdurre registrazione MIDI o nuove voci prima di verificare regressioni su START/STOP, WAV live e CI.
+
+## Dinamica campioni e fine brano — 2026-10-23
+- Campioni WAV ora moltiplicati per la velocity dell'ultimo note-on MIDI/pad, senza allocazioni nel callback audio.
+- Eliminata uscita anticipata a SONG FINISHED per consentire il rendering delle code audio; verificare comportamento del trasporto e arresto host.
+- Commit motore 4433bd22; build Windows/macOS avviate ma non ancora certificate al momento della scrittura.
+- Restano aperti test reali con ATOM, 16 strumenti indipendenti, registrazione live, MIDI Learn, rifinitura UI.
