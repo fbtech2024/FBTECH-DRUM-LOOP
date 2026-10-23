@@ -99,6 +99,13 @@ void FBTECHDRUMLOOPAudioProcessor::setStep(int instrument, int step, bool enable
         pattern[selectedPattern.load()][instrument][step] = enabled;
 }
 
+void FBTECHDRUMLOOPAudioProcessor::playPad(int instrument, float velocity) noexcept
+{
+    if (instrument < 0 || instrument >= instrumentCount) return;
+    const int scaledVelocity = juce::jlimit(1, 127, juce::roundToInt(velocity * 127.0f));
+    pendingPadHits[instrument].store(scaledVelocity);
+}
+
 void FBTECHDRUMLOOPAudioProcessor::clearPattern()
 {
     for (auto& row : pattern[selectedPattern.load()])
@@ -274,6 +281,13 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 incomingHits[hitCount++] = { metadata.samplePosition, instrument, message.getFloatVelocity() };
     }
     midi.clear();
+    // Transfer UI pad requests to the audio thread; never mutate voices from GUI.
+    for (int inst = 0; inst < instrumentCount; ++inst)
+    {
+        const int velocity = pendingPadHits[inst].exchange(0);
+        if (velocity > 0 && hitCount < incomingHits.size())
+            incomingHits[hitCount++] = { 0, inst, static_cast<float>(velocity) / 127.0f };
+    }
 
     bool hostPlaying = false;
     if (auto* playHead = getPlayHead())
