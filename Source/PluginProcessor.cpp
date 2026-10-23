@@ -99,7 +99,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStep(int instrument, int step, bool enable
 void FBTECHDRUMLOOPAudioProcessor::clearPattern()
 {
     for (auto& row : pattern[selectedPattern.load()])
-        for (bool& step : row) step = false;
+        for (auto& step : row) step.store(false);
 }
 
 bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& file)
