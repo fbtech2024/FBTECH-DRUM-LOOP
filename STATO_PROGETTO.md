@@ -58,3 +58,8 @@ Branch unico di sviluppo: main
 - NON sono ancora 16 strumenti indipendenti: servono nuovi slot audio, mapping MIDI, velocity WAV e test hardware.
 - Layout editor esteso; verifica di usabilità e compatibilità con finestre host ancora da eseguire.
 - Build dell'ultimo commit funzionale 708cc792 da verificare.
+
+## Correzione trasporto — 2026-10-23
+- Risolto errore di stato introdotto nella gestione MIDI live: `wasPlaying` veniva azzerato prima del controllo transizione e impostato true anche a trasporto fermo.
+- Commit ed70a32e: ora transizione arresto/avvio viene tracciata correttamente; compilazione e test di regressione ancora da verificare.
+- Priorità: non introdurre registrazione MIDI o nuove voci prima di verificare regressioni su START/STOP, WAV live e CI.
