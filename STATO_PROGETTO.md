@@ -175,3 +175,6 @@ Branch unico di sviluppo: main
 - Questa e' una prima correzione strutturale, NON una GUI professionale definitiva.
 - Libreria di ritmi per genere con anteprima: NON implementata. I pattern A-D non equivalgono a una libreria di stili.
 - Colori esatti del sito FBTECH non ancora verificati. Build e test host della nuova GUI da verificare prima di consegna.
+
+- UI skin JUCE personalizzata (LookAndFeel_V4): pulsanti arrotondati, stati hover/pressed, palette blu scuro/nero/bianco, menu e slider coerenti. Commit 017c8a8e; build e test DAW non ancora verificati.
+- Ricerca UX: Addictive Drums 2 usa navigazione per pagine e browser groove con anteprima; la libreria groove FBTECH e' ancora da implementare, senza inventare contenuti.
