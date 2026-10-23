@@ -237,6 +237,13 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
             {
                 const auto file = fc.getResult();
                 if (file == juce::File{}) return;
+                // Reject oversized presets before reading them into memory.
+                constexpr juce::int64 maxPresetBytes = 96LL * 1024LL * 1024LL;
+                if (file.getSize() <= 0 || file.getSize() > maxPresetBytes)
+                {
+                    songStatus.setText("INVALID OR OVERSIZED PRESET", juce::dontSendNotification);
+                    return;
+                }
                 juce::MemoryBlock data;
                 if (!file.loadFileAsData(data) || data.getSize() == 0)
                 {
