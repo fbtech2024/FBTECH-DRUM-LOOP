@@ -190,3 +190,6 @@ Branch unico di sviluppo: main
 
 ## 2026-10-23 — variazioni ritmiche A-D
 - Ogni groove incorporato ora carica quattro pattern distinti: A base, B hi-hat aggiuntivi, C colpi di cassa sincopati, D fill di tom e rullante. Tutte le variazioni sono modificabili nell'editor e funzionano offline. Il caricamento sostituisce i quattro pattern correnti (solo a trasporto fermo): salvare prima il progetto se si vogliono conservare le modifiche. I pad 5-16 non vengono mantenuti nel nuovo preset. Questa e' una prima logica deterministica di variazione, non un generatore musicale intelligente. Compilazione e test host della modifica ancora da verificare.
+
+## 2026-10-23 — guida variazioni e sicurezza anteprima
+- La schermata RITMI ora mostra la legenda A base, B hi-hat, C cassa, D fill. Il pulsante ASCOLTA ferma l'anteprima precedente prima di sostituire i pattern. Se il callback audio non ha ancora recepito lo stop, chiede di premere ASCOLTA nuovamente; non sovrascrive pattern durante playback. Il trasporto DAW attivo blocca il caricamento. Build e test host della revisione in attesa.
