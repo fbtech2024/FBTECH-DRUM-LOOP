@@ -404,7 +404,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                     case 3: tomEnvelope *= velocity; break;
                 }
             }
-        if (running && step != lastStep)
+        if (running && !songFinished.load() && step != lastStep)
         {
             if (step == 0)
             {
@@ -421,7 +421,6 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                             {
                                 songFinished.store(true);
                                 manualPlaying.store(false);
-                                break;
                             }
                             songSection.store((section + 1) % getSongLength());
                         }
@@ -450,13 +449,12 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                     if (inst == 1 && (step == 6 || step == 10 || step == 12 || step == 14)) hit = true;
                     if (inst == 3 && (step == 8 || step == 11 || step == 13 || step == 15)) hit = true;
                 }
-                if (hit) triggerInstrument(inst);
+                if (hit && !songFinished.load()) triggerInstrument(inst);
             }
             lastStep = step;
             currentStep.store(step);
         }
 
-        if (running && songFinished.load()) break;
         float mixed = 0.0f;
         for (int inst = 0; inst < instrumentCount; ++inst)
             mixed += renderInstrument(inst) * instrumentVolumes[inst].load();
