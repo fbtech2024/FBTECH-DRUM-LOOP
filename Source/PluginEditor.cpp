@@ -4,6 +4,13 @@
 FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRUMLOOPAudioProcessor& p)
     : AudioProcessorEditor(&p), processor(p)
 {
+    const juce::StringArray views { "SUONA", "EDITOR RITMI", "ARRANGIAMENTO" };
+    for (int i = 0; i < 3; ++i)
+    {
+        viewButtons[i].setButtonText(views[i]);
+        viewButtons[i].onClick = [this, i] { activeView = i; updateView(); };
+        addAndMakeVisible(viewButtons[i]);
+    }
     title.setText("FBTECH DRUM LOOP", juce::dontSendNotification);
     title.setJustificationType(juce::Justification::centredLeft);
     title.setFont(juce::Font(juce::FontOptions(28.0f, juce::Font::bold)));
@@ -358,71 +365,124 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     addAndMakeVisible(recordToggle);
 
     // Keep the existing arrangement controls and add a dedicated playable pad row.
-    setSize(980, 1100);
+    setSize(980, 660);
+    updateView();
+}
+
+void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
+{
+    const bool pads = activeView == 0;
+    const bool editor = activeView == 1;
+    const bool song = activeView == 2;
+    for (int i = 0; i < 3; ++i)
+        viewButtons[i].setColour(juce::TextButton::buttonColourId,
+            i == activeView ? juce::Colour(0xff008e9d) : juce::Colour(0xff263545));
+    for (auto& b : drumPads) b.setVisible(pads);
+    kitButton.setVisible(pads);
+    for (auto& b : patternButtons) b.setVisible(pads || editor);
+    playButton.setVisible(true);
+    stopButton.setVisible(true);
+    fillButton.setVisible(pads || editor);
+    recordToggle.setVisible(pads || editor);
+    clearButton.setVisible(editor);
+    stepPageSelector.setVisible(editor);
+    for (auto* b : stepButtons) b->setVisible(editor);
+    for (auto& b : instrumentLabels) b.setVisible(editor);
+    for (auto& b : loadButtons) b.setVisible(editor && stepPage == 0);
+    for (auto& b : volumeSliders) b.setVisible(editor && stepPage == 0);
+    for (auto& b : midiLearnButtons) b.setVisible(editor);
+    songToggle.setVisible(song);
+    stopAtEndToggle.setVisible(song);
+    autoFillToggle.setVisible(song);
+    songLengthLabel.setVisible(song);
+    songLengthSlider.setVisible(song);
+    for (auto& b : sectionLabels) b.setVisible(song);
+    for (auto& b : sectionPatterns) b.setVisible(song);
+    for (auto& b : sectionBars) b.setVisible(song);
+    moveSlotSelector.setVisible(song);
+    moveEarlierButton.setVisible(song);
+    moveLaterButton.setVisible(song);
+    insertSlotButton.setVisible(song);
+    removeSlotButton.setVisible(song);
+    saveSongButton.setVisible(song);
+    loadSongButton.setVisible(song);
+    songStatus.setVisible(song);
+    hint.setText(pads ? "Suona i pad. SHIFT + clic su un pad per caricare un WAV." :
+                 editor ? "Modifica il ritmo e assegna i controlli MIDI." :
+                          "Costruisci il brano scegliendo pattern e battute.",
+                 juce::dontSendNotification);
+    resized();
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colour(0xff101820));
-    g.setColour(juce::Colour(0xff1c2a38));
-    g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(8.0f), 12.0f);
-    g.setColour(juce::Colour(0xff0d9488));
-    g.fillRoundedRectangle(18.0f, 74.0f, 5.0f, 210.0f, 2.0f);
-    g.setColour(juce::Colour(0xff344556));
-    for (int i = 0; i < 4; ++i)
-        g.drawLine(32.0f, 137.0f + i * 48.0f, 948.0f, 137.0f + i * 48.0f, 1.0f);
+    g.fillAll(juce::Colour(0xff0c131c));
+    g.setColour(juce::Colour(0xff172534));
+    g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(9.0f), 14.0f);
+    g.setColour(juce::Colour(0xff008e9d));
+    g.fillRoundedRectangle(24.0f, 84.0f, 932.0f, 3.0f, 1.5f);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::resized()
 {
-    title.setBounds(24, 16, 430, 42);
-    tempoLabel.setBounds(700, 20, 250, 30);
-    tempoLabel.setText("HOST TEMPO: " + juce::String(processor.getTempo(), 1) + " BPM", juce::dontSendNotification);
-    hint.setBounds(26, 54, 900, 24);
-
-    const int left = 284, top = 108, cellW = 40, gap = 3, rowH = 58;
-    for (int inst = 0; inst < 4; ++inst)
+    title.setBounds(26, 15, 500, 42);
+    tempoLabel.setBounds(680, 20, 265, 30);
+    hint.setBounds(27, 93, 900, 25);
+    for (int i = 0; i < 3; ++i)
+        viewButtons[i].setBounds(26 + i * 185, 132, 176, 40);
+    if (activeView == 0)
     {
-        instrumentLabels[inst].setBounds(26, top + inst * rowH, 82, 22);
-        loadButtons[inst].setBounds(26, top + inst * rowH + 24, 82, 25);
-        volumeSliders[inst].setBounds(122, top + inst * rowH, 150, 51);
-        for (int step = 0; step < 16; ++step)
-            stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 34);
+        for (int i = 0; i < 16; ++i)
+            drumPads[i].setBounds(27 + (i % 4) * 235, 198 + (i / 4) * 85, 220, 73);
+        kitButton.setBounds(28, 562, 188, 38);
+        fillButton.setBounds(555, 562, 180, 38);
+        recordToggle.setBounds(754, 565, 185, 34);
     }
-    for (int bank = 0; bank < 4; ++bank)
-        patternButtons[bank].setBounds(284 + bank * 120, 353, 112, 30);
-    stepPageSelector.setBounds(790, 353, 160, 30);
-    songToggle.setBounds(30, 405, 130, 30);
-    songLengthLabel.setBounds(175, 405, 85, 26);
-    songLengthSlider.setBounds(260, 405, 95, 26);
-    for (int i = 0; i < 8; ++i)
+    else if (activeView == 1)
     {
-        const int x = 30 + (i % 4) * 235;
-        const int y = 478 + (i / 4) * 55;
-        sectionLabels[i].setBounds(x, y, 65, 26);
-        sectionPatterns[i].setBounds(x + 65, y, 105, 26);
-        sectionBars[i].setBounds(x + 170, y, 65, 26);
+        const int left = 276, top = 202, cellW = 40, gap = 2, rowH = 66;
+        for (int inst = 0; inst < 4; ++inst)
+        {
+            instrumentLabels[inst].setBounds(27, top + inst * rowH, 100, 22);
+            loadButtons[inst].setBounds(27, top + inst * rowH + 26, 94, 28);
+            volumeSliders[inst].setBounds(126, top + inst * rowH, 136, 55);
+            for (int step = 0; step < 16; ++step)
+                stepButtons[inst * 16 + step]->setBounds(left + step * (cellW + gap), top + inst * rowH, cellW, 38);
+            midiLearnButtons[inst].setBounds(27 + inst * 235, 488, 219, 34);
+        }
+        stepPageSelector.setBounds(777, 139, 168, 34);
+        clearButton.setBounds(782, 562, 164, 36);
+        fillButton.setBounds(580, 562, 184, 36);
+        recordToggle.setBounds(27, 559, 180, 36);
     }
-    stopAtEndToggle.setBounds(30, 440, 150, 28);
-    autoFillToggle.setBounds(190, 440, 130, 28);
-    songStatus.setBounds(330, 440, 610, 28);
-    moveSlotSelector.setBounds(30, 610, 125, 32);
-    moveEarlierButton.setBounds(165, 610, 135, 32);
-    moveLaterButton.setBounds(310, 610, 135, 32);
-    insertSlotButton.setBounds(30, 565, 135, 32);
-    removeSlotButton.setBounds(175, 565, 150, 32);
-    saveSongButton.setBounds(560, 610, 175, 32);
-    loadSongButton.setBounds(755, 610, 175, 32);
-    kitButton.setBounds(26, 665, 170, 32);
-    playButton.setBounds(344, 665, 105, 32);
-    stopButton.setBounds(459, 665, 105, 32);
-    fillButton.setBounds(580, 665, 175, 32);
-    clearButton.setBounds(808, 665, 140, 32);
-    recordToggle.setBounds(765, 702, 175, 23);
+    else
+    {
+        songToggle.setBounds(28, 198, 140, 30);
+        songLengthLabel.setBounds(195, 198, 90, 30);
+        songLengthSlider.setBounds(288, 198, 90, 30);
+        stopAtEndToggle.setBounds(410, 198, 150, 30);
+        autoFillToggle.setBounds(585, 198, 130, 30);
+        songStatus.setBounds(28, 237, 910, 28);
+        for (int i = 0; i < 8; ++i)
+        {
+            const int x = 28 + (i % 4) * 235;
+            const int y = 280 + (i / 4) * 58;
+            sectionLabels[i].setBounds(x, y, 65, 26);
+            sectionPatterns[i].setBounds(x + 64, y, 108, 26);
+            sectionBars[i].setBounds(x + 174, y, 58, 26);
+        }
+        insertSlotButton.setBounds(28, 410, 140, 34);
+        removeSlotButton.setBounds(179, 410, 145, 34);
+        moveSlotSelector.setBounds(28, 458, 128, 32);
+        moveEarlierButton.setBounds(168, 458, 130, 32);
+        moveLaterButton.setBounds(310, 458, 130, 32);
+        saveSongButton.setBounds(553, 458, 180, 34);
+        loadSongButton.setBounds(746, 458, 190, 34);
+    }
     for (int i = 0; i < 4; ++i)
-        midiLearnButtons[i].setBounds(26 + i * 237, 1056, 220, 30);
-    for (int i = 0; i < 16; ++i)
-        drumPads[i].setBounds(26 + (i % 4) * 237, 725 + (i / 4) * 82, 220, 72);
+        patternButtons[i].setBounds(28 + i * 177, 527, 168, 30);
+    playButton.setBounds(735, 606, 100, 36);
+    stopButton.setBounds(845, 606, 100, 36);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::refreshSongControls()
@@ -485,8 +545,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
         instrumentLabels[row].setText(stepPage == 0
             ? juce::StringArray { "KICK", "SNARE", "HI-HAT", "TOM" }[row]
             : "PAD " + juce::String(pad + 1), juce::dontSendNotification);
-        loadButtons[row].setVisible(stepPage == 0);
-        volumeSliders[row].setVisible(stepPage == 0);
+        loadButtons[row].setVisible(activeView == 1 && stepPage == 0);
+        volumeSliders[row].setVisible(activeView == 1 && stepPage == 0);
     }
     if (stepPage == 0)
         for (int inst = 0; inst < 4; ++inst)
