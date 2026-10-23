@@ -101,7 +101,8 @@ void FBTECHDRUMLOOPAudioProcessor::setStep(int instrument, int step, bool enable
 
 void FBTECHDRUMLOOPAudioProcessor::playPad(int instrument, float velocity) noexcept
 {
-    if (instrument < 0 || instrument >= instrumentCount) return;
+    // Instrument is a GUI pad index (0..15). Each pad has its own event slot.
+    if (instrument < 0 || instrument >= 16) return;
     const int scaledVelocity = juce::jlimit(1, 127, juce::roundToInt(velocity * 127.0f));
     pendingPadHits[instrument].store(scaledVelocity);
 }
@@ -302,11 +303,13 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     }
     midi.clear();
     // Transfer UI pad requests to the audio thread; never mutate voices from GUI.
-    for (int inst = 0; inst < instrumentCount; ++inst)
+    for (int pad = 0; pad < 16; ++pad)
     {
-        const int velocity = pendingPadHits[inst].exchange(0);
+        const int velocity = pendingPadHits[pad].exchange(0);
+        // Until the 16-voice engine is ready, retain the established
+        // four-voice sound routing while preserving distinct pad events.
         if (velocity > 0 && hitCount < incomingHits.size())
-            incomingHits[hitCount++] = { 0, inst, static_cast<float>(velocity) / 127.0f };
+            incomingHits[hitCount++] = { 0, pad % instrumentCount, static_cast<float>(velocity) / 127.0f };
     }
 
     bool hostPlaying = false;
