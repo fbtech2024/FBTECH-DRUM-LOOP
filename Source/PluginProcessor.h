@@ -30,6 +30,7 @@ public:
     bool getStep(int instrument, int step) const;
     void setStep(int instrument, int step, bool enabled);
     void clearPattern();
+    void playPad(int instrument, float velocity = 1.0f) noexcept;
     void selectPattern(int index) noexcept;
     void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
@@ -77,6 +78,7 @@ private:
     std::atomic<int> songBars[8] { 4, 8, 8, 4, 8, 8, 8, 4 };
     std::atomic<int> songSection { 0 };
     int songBarCount = 0;
+    std::atomic<int> pendingPadHits[4] {};
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
