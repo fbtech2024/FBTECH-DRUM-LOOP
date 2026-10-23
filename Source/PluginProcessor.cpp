@@ -24,6 +24,7 @@ void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
     currentSampleRate = sampleRate > 0.0 ? sampleRate : 44100.0;
     for (int pad = 0; pad < padCount; ++pad) { samplePositions[pad] = -1.0; sampleVelocities[pad] = 1.0f; }
     freeRunPpq = 0.0;
+    toneFilterState = 0.0f;
     lastStep = -1;
     currentStep.store(-1);
     wasPlaying = false;
@@ -489,6 +490,14 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         float mixed = 0.0f;
         for (int inst = 0; inst < padCount; ++inst)
             mixed += renderInstrument(inst) * (inst < instrumentCount ? instrumentVolumes[inst].load() : 1.0f);
+        // A one-pole low-pass provides an audible brightness/depth control.
+        // Tone=1 bypasses the filter; lower values progressively darken drums.
+        const float tone = masterTone.load();
+        const float cutoff = 250.0f * std::pow(80.0f, tone);
+        const float coefficient = 1.0f - std::exp(-2.0f * juce::MathConstants<float>::pi
+                                                   * cutoff / static_cast<float>(currentSampleRate));
+        toneFilterState += coefficient * (mixed - toneFilterState);
+        mixed = tone >= 0.999f ? mixed : toneFilterState;
         mixed = std::tanh(mixed * 1.3f) * 0.72f;
         for (int ch = 0; ch < channels; ++ch)
             buffer.setSample(ch, sample, mixed);
@@ -520,6 +529,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     xml->setAttribute("autoFill", autoFill.load());
     xml->setAttribute("songLength", getSongLength());
     xml->setAttribute("userBpm", getUserTempo());
+    xml->setAttribute("masterTone", getTone());
     xml->setAttribute("syncToHost", isSyncToHost());
     for (int section = 0; section < 8; ++section)
     {
@@ -547,7 +557,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volumeCC" + juce::String(i), learnedVolumeCcs[i].load());
-    xml->setAttribute("version", 13);
+    xml->setAttribute("version", 14);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -594,6 +604,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     autoFill.store(xml->getBoolAttribute("autoFill", false));
     setSongLength(xml->getIntAttribute("songLength", 4));
     setUserTempo(xml->getDoubleAttribute("userBpm", 120.0));
+    setTone(static_cast<float>(xml->getDoubleAttribute("masterTone", 1.0)));
     setSyncToHost(xml->getBoolAttribute("syncToHost", true));
     for (int section = 0; section < 8; ++section)
     {
