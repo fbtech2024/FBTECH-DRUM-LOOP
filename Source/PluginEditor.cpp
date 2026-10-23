@@ -28,7 +28,13 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         drumPads[i].setButtonText(padNames[instrument] + " " + juce::String(i / 4 + 1));
         drumPads[i].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff164e63));
         drumPads[i].setColour(juce::TextButton::buttonOnColourId, juce::Colour(0xff0891b2));
-        drumPads[i].onClick = [this, instrument] { processor.playPad(instrument); };
+        // Four velocity levels per instrument make the 4x4 pad grid
+        // expressive even before the future 16-independent-voice migration.
+        const float padVelocity = 0.4f + 0.2f * static_cast<float>(i / 4);
+        drumPads[i].onClick = [this, instrument, padVelocity]
+        {
+            processor.playPad(instrument, padVelocity);
+        };
         addAndMakeVisible(drumPads[i]);
     }
     for (int inst = 0; inst < 4; ++inst)
