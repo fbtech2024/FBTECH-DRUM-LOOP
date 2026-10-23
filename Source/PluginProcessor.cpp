@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <cmath>
+#include <cstring>
 
 namespace { constexpr double twoPi = juce::MathConstants<double>::twoPi; }
 
@@ -360,9 +361,24 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("songBars" + juce::String(section), getSongBars(section));
         xml->setAttribute("songPattern" + juce::String(section), getSongPattern(section));
     }
+    // Embed the actual mono PCM samples: presets remain portable across machines.
+    for (int i = 0; i < instrumentCount; ++i)
+    {
+        const auto sample = std::atomic_load(&samples[i]);
+        if (!sample) continue;
+        auto* item = xml->createNewChildElement("SAMPLE");
+        item->setAttribute("instrument", i);
+        item->setAttribute("name", sample->name);
+        item->setAttribute("rate", sample->sampleRate);
+        const int count = sample->audio.getNumSamples();
+        item->setAttribute("frames", count);
+        juce::MemoryBlock pcm(sample->audio.getReadPointer(0),
+                              static_cast<size_t>(count) * sizeof(float));
+        item->setAttribute("pcm", pcm.toBase64Encoding());
+    }
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
-    xml->setAttribute("version", 6);
+    xml->setAttribute("version", 7);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -389,6 +405,32 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     {
         setSongBars(section, xml->getIntAttribute("songBars" + juce::String(section), section == 0 || section == 3 ? 4 : 8));
         setSongPattern(section, xml->getIntAttribute("songPattern" + juce::String(section), section % 4));
+    }
+    // Restore only validated embedded samples. Legacy presets without SAMPLE
+    // elements keep their previous behaviour.
+    if (xml->getIntAttribute("version", 0) >= 7)
+    {
+        std::shared_ptr<SampleData> restored[4];
+        for (auto* item = xml->getFirstChildElement(); item != nullptr; item = item->getNextElement())
+        {
+            if (!item->hasTagName("SAMPLE")) continue;
+            const int instrument = item->getIntAttribute("instrument", -1);
+            const int frames = item->getIntAttribute("frames", 0);
+            const double rate = item->getDoubleAttribute("rate", 0.0);
+            if (instrument < 0 || instrument >= instrumentCount || frames <= 0
+                || frames > 44100 * 60 || rate < 8000.0 || rate > 384000.0) continue;
+            juce::MemoryBlock pcm;
+            if (!pcm.fromBase64Encoding(item->getStringAttribute("pcm"))
+                || pcm.getSize() != static_cast<size_t>(frames) * sizeof(float)) continue;
+            auto data = std::make_shared<SampleData>();
+            data->audio.setSize(1, frames);
+            std::memcpy(data->audio.getWritePointer(0), pcm.getData(), pcm.getSize());
+            data->sampleRate = rate;
+            data->name = item->getStringAttribute("name").substring(0, 256);
+            restored[instrument] = std::move(data);
+        }
+        for (int i = 0; i < instrumentCount; ++i)
+            std::atomic_store(&samples[i], restored[i]);
     }
     transportRunning.store(false);
     selectPattern(xml->getIntAttribute("selectedPattern", 0));
