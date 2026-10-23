@@ -39,3 +39,10 @@ Branch unico di sviluppo: main
 - Non confondere build riuscita con test reale.
 - Non richiedere all'utente microtest a ogni commit: preparare una build candidata finale e una checklist unica.
 - Aggiornare questo file e CHANGELOG.md prima di ogni rilascio.
+
+## Sviluppo MIDI e playhead (2026-10-23)
+- MIDI note-on GM gestito: cassa 35/36, rullante 38/40, charleston 42/44/46, tom 41/43/45/47/48/50.
+- Percussioni MIDI ora attivabili anche con sequencer fermo; velocity applicata agli inviluppi sintetici, da estendere ai WAV.
+- Passo corrente esposto all'editor e evidenziato in riproduzione.
+- Build Windows commit 9c821136 riuscita; CI ultimo commit in verifica. Nessun collaudo ATOM reale ancora effettuato.
+- Mancano mappatura configurabile, comandi/LED ATOM, registrazione MIDI, pad virtuali, nuova grafica FBTECH Music e localizzazione completa.
