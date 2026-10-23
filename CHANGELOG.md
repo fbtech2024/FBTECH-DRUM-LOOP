@@ -90,3 +90,8 @@
 - Sedici note MIDI assegnabili, selezionando la pagina del sequencer e usando MIDI Learn sulla relativa riga.
 - Mappature incluse nei preset v11, mantenendo lettura delle precedenti versioni.
 - Compilazioni e test con hardware reale da verificare.
+
+## MIDI Learn: protezioni UI — 2026-10-23
+- Disattiva il MIDI Learn armato quando si cambia pagina sequencer.
+- Scarta eventi MIDI a velocità zero nell'apprendimento.
+- Build e test hardware ancora da verificare.
