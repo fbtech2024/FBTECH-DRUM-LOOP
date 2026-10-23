@@ -422,7 +422,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
             const int frames = item->getIntAttribute("frames", 0);
             const double rate = item->getDoubleAttribute("rate", 0.0);
             if (instrument < 0 || instrument >= instrumentCount || frames <= 0
-                || static_cast<double>(frames) / rate > 60.0 || rate < 8000.0 || rate > 384000.0) continue;
+                || rate < 8000.0 || rate > 384000.0 || static_cast<double>(frames) / rate > 60.0) continue;
             juce::MemoryBlock pcm;
             if (!pcm.fromBase64Encoding(item->getStringAttribute("pcm"))
                 || pcm.getSize() != static_cast<size_t>(frames) * sizeof(float)) continue;
