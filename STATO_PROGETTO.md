@@ -168,3 +168,10 @@ Branch unico di sviluppo: main
 - Dopo SHIFT+clic sul pad, la scelta annullata non produce errori; caricamento riuscito mostra `WAV LOADED - PAD N`, campione non valido mostra `INVALID WAV - PAD N` nell'area stato.
 - Messaggi WAV preservati dal timer GUI, senza sovrascrittura immediata con lo stato Song Mode.
 - Build e test DAW della modifica ancora da verificare.
+
+## Revisione interfaccia dopo feedback reale (2026-10-23)
+- Avviata correzione sul MASTER esistente: tre viste separate SUONA, EDITOR RITMI e ARRANGIAMENTO; finestra ridotta da 980x1100 a 980x660.
+- Conservati motore audio, pattern, preset, MIDI e controlli esistenti. Modificati PluginEditor.h/.cpp.
+- Questa e' una prima correzione strutturale, NON una GUI professionale definitiva.
+- Libreria di ritmi per genere con anteprima: NON implementata. I pattern A-D non equivalgono a una libreria di stili.
+- Colori esatti del sito FBTECH non ancora verificati. Build e test host della nuova GUI da verificare prima di consegna.
