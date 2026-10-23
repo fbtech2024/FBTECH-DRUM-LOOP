@@ -71,7 +71,7 @@ private:
     static constexpr int instrumentCount = 4;
     static constexpr int padCount = 16;
     static constexpr int stepCount = 16;
-    std::atomic<bool> pattern[4][instrumentCount][stepCount]{};
+    std::atomic<bool> pattern[4][padCount][stepCount]{};
     std::atomic<int> selectedPattern { 0 };
     std::atomic<int> playingPattern { 0 };
     std::atomic<int> queuedPattern { -1 };
