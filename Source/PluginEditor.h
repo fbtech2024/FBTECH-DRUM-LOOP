@@ -2,16 +2,25 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+class FBTECHDrumSkin final : public juce::LookAndFeel_V4
+{
+public:
+    FBTECHDrumSkin();
+    void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
+    void drawButtonText(juce::Graphics&, juce::TextButton&, bool, bool) override;
+};
+
 class FBTECHDRUMLOOPAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     explicit FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRUMLOOPAudioProcessor&);
-    ~FBTECHDRUMLOOPAudioProcessorEditor() override = default;
+    ~FBTECHDRUMLOOPAudioProcessorEditor() override;
     void paint(juce::Graphics&) override;
     void resized() override;
 
 private:
     FBTECHDRUMLOOPAudioProcessor& processor;
+    FBTECHDrumSkin skin;
     juce::Label title, tempoLabel, hint;
     juce::TextButton viewButtons[3];
     int activeView = 0;
