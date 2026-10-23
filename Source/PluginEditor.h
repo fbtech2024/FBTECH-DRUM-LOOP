@@ -18,6 +18,7 @@ private:
     juce::TextButton clearButton { "CLEAR PATTERN" };
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
     juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
+    juce::ToggleButton recordToggle { "REGISTRA PAD" };
     juce::TextButton fillButton { "FILL NEXT BAR" };
     juce::TextButton saveSongButton { "SAVE SONG" }, loadSongButton { "LOAD SONG" };
     void refreshSongControls();
