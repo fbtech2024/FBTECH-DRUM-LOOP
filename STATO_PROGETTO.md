@@ -89,3 +89,9 @@ Branch unico di sviluppo: main
 - SHIFT+clic sul pulsante MIDI Learn elimina l'assegnazione della voce e disarma l'apprendimento.
 - Nota: il fallback General MIDI rimane attivo e può produrre conflitti semantici se una nota GM viene rimappata; richiede ulteriore verifica.
 - Nuove build ancora da confermare.
+
+## Correzione fallback MIDI — 2026-10-23
+- Quando una voce ha un mapping MIDI Learn, i suoi alias General MIDI standard vengono disattivati; il mapping personalizzato prevale.
+- Caricamento preset normalizza eventuali note MIDI duplicate tra voci.
+- Le quattro voci continuano a condividere 16 pad grafici; ATOM, 16 voci indipendenti, registrazione e precisione richiedono collaudo hardware.
+- Commit motore 1b097fcd; build e test ancora da verificare.
