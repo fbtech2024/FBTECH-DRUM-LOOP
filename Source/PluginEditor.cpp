@@ -168,6 +168,52 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     moveLaterButton.onClick = [moveSlot] { moveSlot(1); };
     addAndMakeVisible(moveEarlierButton);
     addAndMakeVisible(moveLaterButton);
+    insertSlotButton.onClick = [this]
+    {
+        if (processor.isManualPlaying() || processor.isTransportRunning())
+        {
+            songStatus.setText("STOP PLAYBACK BEFORE EDITING", juce::dontSendNotification);
+            return;
+        }
+        const int count = processor.getSongLength();
+        const int selected = moveSlotSelector.getSelectedId() - 1;
+        if (count >= 8 || selected < 0 || selected >= count) return;
+        const int insertion = selected + 1;
+        for (int i = count; i > insertion; --i)
+        {
+            processor.setSongPattern(i, processor.getSongPattern(i - 1));
+            processor.setSongBars(i, processor.getSongBars(i - 1));
+        }
+        processor.setSongPattern(insertion, processor.getSongPattern(selected));
+        processor.setSongBars(insertion, processor.getSongBars(selected));
+        processor.setSongLength(count + 1);
+        moveSlotSelector.setSelectedId(insertion + 1, juce::dontSendNotification);
+        refreshSongControls();
+        songStatus.setText("SLOT ADDED - SAVE SONG TO KEEP", juce::dontSendNotification);
+    };
+    removeSlotButton.onClick = [this]
+    {
+        if (processor.isManualPlaying() || processor.isTransportRunning())
+        {
+            songStatus.setText("STOP PLAYBACK BEFORE EDITING", juce::dontSendNotification);
+            return;
+        }
+        const int count = processor.getSongLength();
+        const int selected = moveSlotSelector.getSelectedId() - 1;
+        if (count <= 1 || selected < 0 || selected >= count) return;
+        for (int i = selected; i < count - 1; ++i)
+        {
+            processor.setSongPattern(i, processor.getSongPattern(i + 1));
+            processor.setSongBars(i, processor.getSongBars(i + 1));
+        }
+        processor.setSongLength(count - 1);
+        moveSlotSelector.setSelectedId(juce::jmin(selected, count - 2) + 1, juce::dontSendNotification);
+        refreshSongControls();
+        songStatus.setText("SLOT REMOVED - SAVE SONG TO KEEP", juce::dontSendNotification);
+    };
+    addAndMakeVisible(insertSlotButton);
+    addAndMakeVisible(removeSlotButton);
+
     saveSongButton.onClick = [this]
     {
         chooser = std::make_unique<juce::FileChooser>("Save FBTECH song preset", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("FBTECH Song.fbdl"), "*.fbdl");
@@ -259,6 +305,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     moveSlotSelector.setBounds(30, 610, 125, 32);
     moveEarlierButton.setBounds(165, 610, 135, 32);
     moveLaterButton.setBounds(310, 610, 135, 32);
+    insertSlotButton.setBounds(30, 565, 135, 32);
+    removeSlotButton.setBounds(175, 565, 150, 32);
     saveSongButton.setBounds(560, 610, 175, 32);
     loadSongButton.setBounds(755, 610, 175, 32);
     kitButton.setBounds(26, 665, 170, 32);
