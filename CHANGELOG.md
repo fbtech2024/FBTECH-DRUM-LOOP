@@ -33,3 +33,8 @@
 - Aggiunto controllo velocity sui campioni WAV, mantenendo il trattamento già presente per i sintetizzatori.
 - Rimossa uscita anticipata alla fine del brano che poteva tagliare code audio.
 - CI e test audio reali ancora da confermare.
+
+## Registrazione live MIDI — 2026-10-23
+- Aggiunto REGISTRA PAD: cattura note MIDI e pad GUI nella griglia del pattern selezionato, quantizzate ai sedicesimi.
+- Registrazione attiva solo a sequencer avviato e fuori Song Mode.
+- Funzione non ancora collaudata su hardware/DAW; build CI in corso.
