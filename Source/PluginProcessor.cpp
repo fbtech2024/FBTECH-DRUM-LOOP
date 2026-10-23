@@ -20,6 +20,7 @@ FBTECHDRUMLOOPAudioProcessor::FBTECHDRUMLOOPAudioProcessor()
 void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
 {
     currentSampleRate = sampleRate > 0.0 ? sampleRate : 44100.0;
+    for (int pad = 0; pad < padCount; ++pad) { samplePositions[pad] = -1.0; sampleVelocities[pad] = 1.0f; }
     freeRunPpq = 0.0;
     lastStep = -1;
     currentStep.store(-1);
@@ -115,7 +116,7 @@ void FBTECHDRUMLOOPAudioProcessor::clearPattern()
 
 bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& file)
 {
-    if (instrument < 0 || instrument >= instrumentCount || !file.existsAsFile()) return false;
+    if (instrument < 0 || instrument >= padCount || !file.existsAsFile()) return false;
     std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
     if (!reader || reader->lengthInSamples <= 0 || reader->sampleRate < 8000.0 || reader->sampleRate > 384000.0
         || !std::isfinite(reader->sampleRate)
@@ -188,6 +189,7 @@ juce::String FBTECHDRUMLOOPAudioProcessor::getSampleName(int instrument) const
 
 void FBTECHDRUMLOOPAudioProcessor::triggerInstrument(int instrument)
 {
+    if (instrument < 0 || instrument >= padCount) return;
     sampleVelocities[instrument] = 1.0f;
     auto sample = std::atomic_load(&samples[instrument]);
     if (sample) { activeSamples[instrument] = sample; samplePositions[instrument] = 0; return; }
@@ -204,6 +206,7 @@ void FBTECHDRUMLOOPAudioProcessor::triggerInstrument(int instrument)
 
 float FBTECHDRUMLOOPAudioProcessor::renderInstrument(int instrument)
 {
+    if (instrument < 0 || instrument >= padCount) return 0.0f;
     if (samplePositions[instrument] >= 0 && activeSamples[instrument])
     {
         const auto& data = *activeSamples[instrument];
@@ -309,7 +312,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         // Until the 16-voice engine is ready, retain the established
         // four-voice sound routing while preserving distinct pad events.
         if (velocity > 0 && hitCount < incomingHits.size())
-            incomingHits[hitCount++] = { 0, pad % instrumentCount, static_cast<float>(velocity) / 127.0f };
+            incomingHits[hitCount++] = { 0, pad, static_cast<float>(velocity) / 127.0f };
     }
 
     bool hostPlaying = false;
@@ -397,7 +400,8 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 if (running && recording.load() && !songMode.load())
                 {
                     const int recordedStep = static_cast<int>(std::floor(ppq * 4.0 + 0.5)) & 15;
-                    pattern[playingPattern.load()][hit.instrument][recordedStep].store(true);
+                    if (hit.instrument < instrumentCount)
+                        pattern[playingPattern.load()][hit.instrument][recordedStep].store(true);
                 }
                 switch (hit.instrument)
                 {
@@ -459,8 +463,8 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         }
 
         float mixed = 0.0f;
-        for (int inst = 0; inst < instrumentCount; ++inst)
-            mixed += renderInstrument(inst) * instrumentVolumes[inst].load();
+        for (int inst = 0; inst < padCount; ++inst)
+            mixed += renderInstrument(inst) * (inst < instrumentCount ? instrumentVolumes[inst].load() : 1.0f);
         mixed = std::tanh(mixed * 1.3f) * 0.72f;
         for (int ch = 0; ch < channels; ++ch)
             buffer.setSample(ch, sample, mixed);
@@ -497,7 +501,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("songPattern" + juce::String(section), getSongPattern(section));
     }
     // Embed the actual mono PCM samples: presets remain portable across machines.
-    for (int i = 0; i < instrumentCount; ++i)
+    for (int i = 0; i < padCount; ++i)
     {
         const auto sample = std::atomic_load(&samples[i]);
         if (!sample) continue;
@@ -558,14 +562,14 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     // elements keep their previous behaviour.
     if (xml->getIntAttribute("version", 0) >= 7)
     {
-        std::shared_ptr<SampleData> restored[4];
+        std::shared_ptr<SampleData> restored[padCount];
         for (auto* item = xml->getFirstChildElement(); item != nullptr; item = item->getNextElement())
         {
             if (!item->hasTagName("SAMPLE")) continue;
             const int instrument = item->getIntAttribute("instrument", -1);
             const int frames = item->getIntAttribute("frames", 0);
             const double rate = item->getDoubleAttribute("rate", 0.0);
-            if (instrument < 0 || instrument >= instrumentCount || frames <= 0
+            if (instrument < 0 || instrument >= padCount || frames <= 0
                 || !std::isfinite(rate) || rate < 8000.0 || rate > 384000.0
                 || static_cast<double>(frames) / rate > 60.0
                 || static_cast<size_t>(frames) * sizeof(float) > 64u * 1024u * 1024u) continue;
@@ -587,7 +591,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
             data->name = item->getStringAttribute("name").substring(0, 256);
             restored[instrument] = std::move(data);
         }
-        for (int i = 0; i < instrumentCount; ++i)
+        for (int i = 0; i < padCount; ++i)
             std::atomic_store(&samples[i], restored[i]);
     }
     transportRunning.store(false);
