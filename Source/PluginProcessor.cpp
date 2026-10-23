@@ -533,8 +533,15 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     }
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
+    // Normalize duplicate note assignments in malformed/older presets.
     for (int i = 0; i < instrumentCount; ++i)
-        learnedNotes[i].store(juce::jlimit(-1, 127, xml->getIntAttribute("midiNote" + juce::String(i), -1)));
+    {
+        const int note = juce::jlimit(-1, 127, xml->getIntAttribute("midiNote" + juce::String(i), -1));
+        bool duplicate = false;
+        for (int previous = 0; previous < i; ++previous)
+            duplicate = duplicate || (note >= 0 && learnedNotes[previous].load() == note);
+        learnedNotes[i].store(duplicate ? -1 : note);
+    }
     midiLearnInstrument.store(-1);
     recording.store(false);
     songMode.store(xml->getBoolAttribute("songMode", false));
