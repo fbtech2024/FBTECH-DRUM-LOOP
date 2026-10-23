@@ -22,6 +22,7 @@ void FBTECHDRUMLOOPAudioProcessor::prepareToPlay(double sampleRate, int)
     currentSampleRate = sampleRate > 0.0 ? sampleRate : 44100.0;
     freeRunPpq = 0.0;
     lastStep = -1;
+    currentStep.store(-1);
     wasPlaying = false;
     fillActive = false;
     fillRequested.store(false);
@@ -295,6 +296,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         songSection.store(0);
         songBarCount = 0;
         lastStep = -1;
+        currentStep.store(-1);
         wasPlaying = false;
         fillActive = false;
         fillRequested.store(false);
@@ -406,6 +408,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 if (hit) triggerInstrument(inst);
             }
             lastStep = step;
+            currentStep.store(step);
         }
 
         if (running && songFinished.load()) break;
