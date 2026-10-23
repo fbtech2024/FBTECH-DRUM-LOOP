@@ -20,12 +20,15 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
 
     const juce::StringArray names { "KICK", "SNARE", "HI-HAT", "TOM" };
     const juce::StringArray padNames { "CASSA", "RULLANTE", "CHARLESTON", "TOM" };
-    for (int i = 0; i < 4; ++i)
+    // Sixteen physical-style pads, four per instrument. The numbered pads
+    // deliberately share voices until additional kit slots are implemented.
+    for (int i = 0; i < 16; ++i)
     {
-        drumPads[i].setButtonText(padNames[i]);
+        const int instrument = i % 4;
+        drumPads[i].setButtonText(padNames[instrument] + " " + juce::String(i / 4 + 1));
         drumPads[i].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff164e63));
         drumPads[i].setColour(juce::TextButton::buttonOnColourId, juce::Colour(0xff0891b2));
-        drumPads[i].onClick = [this, i] { processor.playPad(i); };
+        drumPads[i].onClick = [this, instrument] { processor.playPad(instrument); };
         addAndMakeVisible(drumPads[i]);
     }
     for (int inst = 0; inst < 4; ++inst)
@@ -283,7 +286,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     startTimerHz(12);
 
     // Keep the existing arrangement controls and add a dedicated playable pad row.
-    setSize(980, 830);
+    setSize(980, 1070);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -342,8 +345,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     stopButton.setBounds(459, 665, 105, 32);
     fillButton.setBounds(580, 665, 175, 32);
     clearButton.setBounds(808, 665, 140, 32);
-    for (int i = 0; i < 4; ++i)
-        drumPads[i].setBounds(26 + i * 237, 725, 220, 76);
+    for (int i = 0; i < 16; ++i)
+        drumPads[i].setBounds(26 + (i % 4) * 237, 725 + (i / 4) * 82, 220, 72);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::refreshSongControls()
