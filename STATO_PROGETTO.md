@@ -125,3 +125,10 @@ Branch unico di sviluppo: main
 - La GUI invia ora l'indice del pad 0..15 invece dell'indice della voce 0..3. Gli eventi distinti di pad diversi non si sovrascrivono più prima del blocco audio, pur condividendo ancora il suono della stessa voce.
 - NON ancora implementati 16 campioni WAV indipendenti, 16 tracce del sequencer, né MIDI Learn per 16 voci. I preset rimangono nel formato precedente.
 - Nuove build e test DAW/ATOM da verificare.
+
+## Sedici slot WAV indipendenti — 2026-10-23
+- Espansi a 16 gli slot per campioni WAV, riproduzione e code audio; pad 5–16 possono suonare campioni distinti, caricabili con SHIFT+clic sul pad.
+- I primi quattro pad conservano le voci synth e il sequencer preesistenti. I pad 5–16 senza WAV caricato sono silenziosi.
+- I WAV dei 16 slot sono incorporati nel preset versione 9; lettura dei preset precedenti mantenuta (versioni 7/8).
+- La GUI mostra il nome del WAV caricato anche alla riapertura.
+- LIMITI: sequencer, MIDI Learn e volume per voce restano a quattro strumenti; i pad aggiuntivi non hanno ancora tracce step proprie. Compilazioni CI e test audio reali ancora da verificare.
