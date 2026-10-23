@@ -272,10 +272,18 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         const auto message = metadata.getMessage();
         if (!message.isNoteOn()) continue;
         const int note = message.getNoteNumber();
-        const int instrument = note == 36 || note == 35 ? 0
-                             : note == 38 || note == 40 ? 1
-                             : note == 42 || note == 44 || note == 46 ? 2
-                             : note == 41 || note == 43 || note == 45 || note == 47 || note == 48 || note == 50 ? 3 : -1;
+        const int learning = midiLearnInstrument.exchange(-1);
+        if (learning >= 0 && learning < instrumentCount)
+            learnedNotes[learning].store(note);
+        int instrument = -1;
+        // Learned note assignments override the General MIDI defaults.
+        for (int inst = 0; inst < instrumentCount; ++inst)
+            if (learnedNotes[inst].load() == note) { instrument = inst; break; }
+        if (instrument < 0)
+            instrument = note == 36 || note == 35 ? 0
+                       : note == 38 || note == 40 ? 1
+                       : note == 42 || note == 44 || note == 46 ? 2
+                       : note == 41 || note == 43 || note == 45 || note == 47 || note == 48 || note == 50 ? 3 : -1;
         if (instrument >= 0 && metadata.samplePosition >= 0
             && metadata.samplePosition < buffer.getNumSamples())
             if (hitCount < incomingHits.size())
@@ -493,7 +501,9 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     }
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
-    xml->setAttribute("version", 7);
+    for (int i = 0; i < instrumentCount; ++i)
+        xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
+    xml->setAttribute("version", 8);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -512,6 +522,10 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     }
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
+    for (int i = 0; i < instrumentCount; ++i)
+        learnedNotes[i].store(juce::jlimit(-1, 127, xml->getIntAttribute("midiNote" + juce::String(i), -1)));
+    midiLearnInstrument.store(-1);
+    recording.store(false);
     songMode.store(xml->getBoolAttribute("songMode", false));
     stopAtEnd.store(xml->getBoolAttribute("stopAtEnd", false));
     autoFill.store(xml->getBoolAttribute("autoFill", false));
