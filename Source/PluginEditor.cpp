@@ -285,6 +285,11 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     refreshSongControls();
     startTimerHz(12);
 
+    recordToggle.setToggleState(processor.isRecording(), juce::dontSendNotification);
+    recordToggle.setColour(juce::ToggleButton::textColourId, juce::Colour(0xfffb7185));
+    recordToggle.onClick = [this] { processor.setRecording(recordToggle.getToggleState()); };
+    addAndMakeVisible(recordToggle);
+
     // Keep the existing arrangement controls and add a dedicated playable pad row.
     setSize(980, 1070);
 }
@@ -345,6 +350,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     stopButton.setBounds(459, 665, 105, 32);
     fillButton.setBounds(580, 665, 175, 32);
     clearButton.setBounds(808, 665, 140, 32);
+    recordToggle.setBounds(765, 702, 175, 23);
     for (int i = 0; i < 16; ++i)
         drumPads[i].setBounds(26 + (i % 4) * 237, 725 + (i / 4) * 82, 220, 72);
 }
