@@ -33,6 +33,10 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     }
     for (int inst = 0; inst < 4; ++inst)
     {
+        midiLearnButtons[inst].setButtonText("MIDI LEARN");
+        midiLearnButtons[inst].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff334155));
+        midiLearnButtons[inst].onClick = [this, inst] { processor.armMidiLearn(inst); };
+        addAndMakeVisible(midiLearnButtons[inst]);
         instrumentLabels[inst].setText(names[inst], juce::dontSendNotification);
         instrumentLabels[inst].setColour(juce::Label::textColourId, juce::Colour(0xffcbd5e1));
         instrumentLabels[inst].setFont(juce::Font(juce::FontOptions(11.0f, juce::Font::bold)));
@@ -291,7 +295,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     addAndMakeVisible(recordToggle);
 
     // Keep the existing arrangement controls and add a dedicated playable pad row.
-    setSize(980, 1070);
+    setSize(980, 1100);
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
@@ -351,6 +355,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     fillButton.setBounds(580, 665, 175, 32);
     clearButton.setBounds(808, 665, 140, 32);
     recordToggle.setBounds(765, 702, 175, 23);
+    for (int i = 0; i < 4; ++i)
+        midiLearnButtons[i].setBounds(26 + i * 237, 1056, 220, 30);
     for (int i = 0; i < 16; ++i)
         drumPads[i].setBounds(26 + (i % 4) * 237, 725 + (i / 4) * 82, 220, 72);
 }
@@ -397,6 +403,13 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
     // Highlight the active column without changing the stored step toggles.
+    for (int inst = 0; inst < 4; ++inst)
+    {
+        const int note = processor.getLearnedNote(inst);
+        const bool armed = processor.getMidiLearnInstrument() == inst;
+        midiLearnButtons[inst].setButtonText(armed ? "PREMI UN PAD MIDI..." :
+            note >= 0 ? "NOTA MIDI " + juce::String(note) + " - CAMBIA" : "MIDI LEARN");
+    }
     const int activeStep = processor.isTransportRunning() ? processor.getCurrentStep() : -1;
     for (int instrument = 0; instrument < 4; ++instrument)
         for (int step = 0; step < 16; ++step)
