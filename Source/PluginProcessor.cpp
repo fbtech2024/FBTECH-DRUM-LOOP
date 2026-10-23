@@ -187,6 +187,7 @@ juce::String FBTECHDRUMLOOPAudioProcessor::getSampleName(int instrument) const
 
 void FBTECHDRUMLOOPAudioProcessor::triggerInstrument(int instrument)
 {
+    sampleVelocities[instrument] = 1.0f;
     auto sample = std::atomic_load(&samples[instrument]);
     if (sample) { activeSamples[instrument] = sample; samplePositions[instrument] = 0; return; }
     samplePositions[instrument] = -1;
@@ -214,7 +215,7 @@ float FBTECHDRUMLOOPAudioProcessor::renderInstrument(int instrument)
             const int nextIndex = juce::jmin(index + 1, audio.getNumSamples() - 1);
             const float result = audio.getSample(0, index) * (1.0f - fraction) + audio.getSample(0, nextIndex) * fraction;
             samplePositions[instrument] += data.sampleRate / currentSampleRate;
-            return result;
+            return result * sampleVelocities[instrument];
         }
         samplePositions[instrument] = -1;
         activeSamples[instrument].reset();
@@ -338,7 +339,6 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         if (songMode.load()) playingPattern.store(getSongPattern(0));
     }
     wasPlaying = running;
-    if (running && songFinished.load() && hitCount == 0) return;
     // Reject invalid host tempo values before they reach sequencer timing math.
     if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
         tempoBpm = 120.0;
@@ -369,6 +369,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 triggerInstrument(hit.instrument);
                 // Velocity shapes the built-in synthesised drum envelopes.
                 const double velocity = juce::jlimit(0.0, 1.0, static_cast<double>(hit.velocity));
+                sampleVelocities[hit.instrument] = static_cast<float>(velocity);
                 switch (hit.instrument)
                 {
                     case 0: kickEnvelope *= velocity; break;
