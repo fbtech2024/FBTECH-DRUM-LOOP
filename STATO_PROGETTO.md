@@ -158,3 +158,8 @@ Branch unico di sviluppo: main
 - Preset formato 12 memorizza `volumeCC0..3` e mantiene lettura di versioni precedenti.
 - NON è un'integrazione nativa ATOM: funziona solo se il controller/DAW trasmette messaggi MIDI CC al plugin. Non sono implementati feedback LED, controllo trasporto e protocolli proprietari.
 - Build CI e test host/controller reali da verificare.
+
+## Gestione compilazioni GitHub Actions — 2026-10-23
+- Configurata `concurrency` con `cancel-in-progress: true` per i workflow Windows x64 e macOS Intel. Quando arriva un nuovo commit su `main`, le compilazioni precedenti dello stesso workflow/branch possono essere annullate; la compilazione più recente resta quella da controllare.
+- Motivo: molti commit ravvicinati stavano accumulando code di build; gli annullamenti dei run precedenti non indicano un errore di compilazione.
+- Build dell'ultimo commit ancora da verificare. Test audio e controller hardware non effettuati.
