@@ -130,3 +130,6 @@
 
 ## 2026-10-23 — guida variazioni e sicurezza anteprima
 - La schermata RITMI ora mostra la legenda A base, B hi-hat, C cassa, D fill. Il pulsante ASCOLTA ferma l'anteprima precedente prima di sostituire i pattern. Se il callback audio non ha ancora recepito lo stop, chiede di premere ASCOLTA nuovamente; non sovrascrive pattern durante playback. Il trasporto DAW attivo blocca il caricamento. Build e test host della revisione in attesa.
+
+## 2026-10-23 — BPM controllabile
+- Aggiunto grande controllo BPM 40-240 nella schermata RITMI e opzione SYNC DAW. Quando il trasporto host non suona, il loop manuale usa il BPM impostato dall'utente; quando il trasporto host suona e SYNC DAW e' attivo, segue il BPM host. BPM e sync sono persistiti nei preset (versione stato 13). Il motore WAV esistente resta invariato: nessuna libreria acustica reale e' stata ancora aggiunta. Touch pad, equalizzazione e profondita' restano da sviluppare e verificare. Build e prova DAW di questa revisione non ancora confermate.
