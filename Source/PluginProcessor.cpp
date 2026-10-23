@@ -370,6 +370,13 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 // Velocity shapes the built-in synthesised drum envelopes.
                 const double velocity = juce::jlimit(0.0, 1.0, static_cast<double>(hit.velocity));
                 sampleVelocities[hit.instrument] = static_cast<float>(velocity);
+                // Capture only played MIDI/GUI hits, not sequencer-generated notes.
+                // Quantize to the nearest sixteenth on the running host/manual clock.
+                if (running && recording.load() && !songMode.load())
+                {
+                    const int recordedStep = static_cast<int>(std::floor(ppq * 4.0 + 0.5)) & 15;
+                    pattern[selectedPattern.load()][hit.instrument][recordedStep].store(true);
+                }
                 switch (hit.instrument)
                 {
                     case 0: kickEnvelope *= velocity; break;
