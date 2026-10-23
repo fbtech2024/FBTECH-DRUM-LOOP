@@ -2,6 +2,7 @@
 #include "PluginEditor.h"
 #include <cmath>
 #include <cstring>
+#include <vector>
 
 namespace { constexpr double twoPi = juce::MathConstants<double>::twoPi; }
 
@@ -249,6 +250,25 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
 {
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
+
+    // Read MIDI note-on events before clearing the input buffer. Standard GM
+    // drum notes work with ATOM and other controllers configured to send MIDI.
+    // Events are dispatched at their sample offset for accurate timing.
+    struct DrumHit { int offset, instrument; float velocity; };
+    std::vector<DrumHit> incomingHits;
+    for (const auto metadata : midi)
+    {
+        const auto message = metadata.getMessage();
+        if (!message.isNoteOn()) continue;
+        const int note = message.getNoteNumber();
+        const int instrument = note == 36 || note == 35 ? 0
+                             : note == 38 || note == 40 ? 1
+                             : note == 42 || note == 44 || note == 46 ? 2
+                             : note == 41 || note == 43 || note == 45 || note == 47 || note == 48 || note == 50 ? 3 : -1;
+        if (instrument >= 0 && metadata.samplePosition >= 0
+            && metadata.samplePosition < buffer.getNumSamples())
+            incomingHits.push_back({ metadata.samplePosition, instrument, message.getFloatVelocity() });
+    }
     midi.clear();
 
     bool hostPlaying = false;
@@ -283,10 +303,12 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             samplePositions[i] = -1;
             activeSamples[i].reset();
         }
-        kickEnvelope = snareEnvelope = hatEnvelope = tomEnvelope = 0.0;
-        return;
+        // Do not silence incoming live MIDI when the sequencer is stopped.
+        // Reset the old sequencer voices only when transport has just stopped.
+        if (wasPlaying)
+            kickEnvelope = snareEnvelope = hatEnvelope = tomEnvelope = 0.0;
     }
-    if (!wasPlaying)
+    if (running && !wasPlaying)
     {
         lastStep = -1;
         if (!hostPlaying) freeRunPpq = 0.0;
@@ -296,7 +318,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         if (songMode.load()) playingPattern.store(getSongPattern(0));
     }
     wasPlaying = true;
-    if (songFinished.load()) return;
+    if (running && songFinished.load() && incomingHits.empty()) return;
     // Reject invalid host tempo values before they reach sequencer timing math.
     if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
         tempoBpm = 120.0;
@@ -320,7 +342,22 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         const double stepPosition = std::floor(ppq * 4.0 + 1.0e-7);
         const int step = static_cast<int>(std::fmod(std::fmod(stepPosition, static_cast<double>(stepCount))
                                                      + stepCount, static_cast<double>(stepCount)));
-        if (step != lastStep)
+        // MIDI hits are audible independently of the sequencer transport.
+        for (const auto& hit : incomingHits)
+            if (hit.offset == sample)
+            {
+                triggerInstrument(hit.instrument);
+                // Velocity shapes the built-in synthesised drum envelopes.
+                const double velocity = juce::jlimit(0.0, 1.0, static_cast<double>(hit.velocity));
+                switch (hit.instrument)
+                {
+                    case 0: kickEnvelope *= velocity; break;
+                    case 1: snareEnvelope *= velocity; break;
+                    case 2: hatEnvelope *= velocity; break;
+                    case 3: tomEnvelope *= velocity; break;
+                }
+            }
+        if (running && step != lastStep)
         {
             if (step == 0)
             {
@@ -371,7 +408,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             lastStep = step;
         }
 
-        if (songFinished.load()) break;
+        if (running && songFinished.load()) break;
         float mixed = 0.0f;
         for (int inst = 0; inst < instrumentCount; ++inst)
             mixed += renderInstrument(inst) * instrumentVolumes[inst].load();
@@ -382,9 +419,9 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
 
     // Advance only while the sequencer is running. Keep the autonomous clock
     // bounded, but never rewrite the host transport position.
-    if (!hostPlaying)
+    if (running && !hostPlaying)
         freeRunPpq = std::fmod(startPpq + beatsPerSample * buffer.getNumSamples(), 4096.0);
-    else
+    else if (running)
         freeRunPpq = startPpq + beatsPerSample * buffer.getNumSamples();
 }
 
