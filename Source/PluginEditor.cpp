@@ -62,8 +62,20 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     grooveLoadButton.onClick = [this] { loadSelectedGroove(); };
     groovePreviewButton.onClick = [this]
     {
-        if (loadSelectedGroove() && !processor.isTransportRunning()) processor.setManualPlaying(true);
+        // Preview can change grooves without a separate STOP click.
+        if (processor.isTransportRunning() && !processor.isManualPlaying())
+        {
+            grooveDescription.setText("Ferma il trasporto DAW per cambiare il groove.", juce::dontSendNotification);
+            return;
+        }
+        processor.setManualPlaying(false);
+        if (loadSelectedGroove()) processor.setManualPlaying(true);
     };
+    variationGuide.setText("A  BASE    B  HI-HAT    C  CASSA    D  FILL", juce::dontSendNotification);
+    variationGuide.setColour(juce::Label::textColourId, juce::Colour(0xff69caff));
+    variationGuide.setJustificationType(juce::Justification::centredLeft);
+    variationGuide.setFont(juce::Font(juce::FontOptions(15.0f, juce::Font::bold)));
+    addAndMakeVisible(variationGuide);
     for (juce::Component* c : { static_cast<juce::Component*>(&genreSelector), static_cast<juce::Component*>(&grooveSelector),
          static_cast<juce::Component*>(&grooveTitle), static_cast<juce::Component*>(&grooveDescription),
          static_cast<juce::Component*>(&grooveLoadButton), static_cast<juce::Component*>(&groovePreviewButton) })
@@ -517,6 +529,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
     grooveDescription.setVisible(library);
     grooveLoadButton.setVisible(library);
     groovePreviewButton.setVisible(library);
+    variationGuide.setVisible(library);
     for (auto& b : drumPads) b.setVisible(pads);
     kitButton.setVisible(pads);
     for (auto& b : patternButtons) b.setVisible(pads || editor);
@@ -614,6 +627,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         grooveDescription.setBounds(314, 299, 565, 48);
         grooveLoadButton.setBounds(315, 377, 194, 47);
         groovePreviewButton.setBounds(315, 438, 194, 47);
+        variationGuide.setBounds(315, 506, 608, 30);
     }
     else if (activeView == 1)
     {
