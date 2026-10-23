@@ -145,3 +145,9 @@ Branch unico di sviluppo: main
 - Rimane fallback General MIDI per le prime quattro voci finché non hanno una nota assegnata; la mappatura appresa ha precedenza.
 - Preset versione 11 incorpora tutte le sedici mappature; compatibilità di lettura dei vecchi preset mantenuta.
 - Le build CI e i test fisici PreSonus ATOM/DAW restano da verificare; feedback LED e controllo dei knob ATOM non ancora implementati.
+
+## Sicurezza assegnazione MIDI Learn — 2026-10-23
+- Cambiando pagina del sequencer (pad 1–4, 5–8, 9–12, 13–16) viene annullato l'eventuale MIDI Learn in attesa, per evitare di assegnare una nota a un pad nascosto.
+- Eventi MIDI a velocità zero non vengono usati per apprendere note.
+- Non è ancora presente un protocollo dedicato PreSonus ATOM per LED, manopole e trasporto: compatibilità basata sulle note MIDI ricevute e sui mapping appresi.
+- Compilazioni e prove in host DAW da verificare.
