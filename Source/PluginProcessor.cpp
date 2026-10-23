@@ -293,6 +293,13 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
         tempoBpm = 120.0;
     const double beatsPerSample = tempoBpm / (60.0 * currentSampleRate);
+    // Re-anchor the free-running clock before its floating-point precision degrades
+    // during multi-day sessions without a DAW transport position.
+    if (std::abs(freeRunPpq) > 4096.0)
+    {
+        freeRunPpq = std::fmod(freeRunPpq, 4.0);
+        lastStep = -1;
+    }
     const double startPpq = freeRunPpq;
     const int channels = buffer.getNumChannels();
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
