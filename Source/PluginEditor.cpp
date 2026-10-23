@@ -376,6 +376,18 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
+    // Highlight the active column without changing the stored step toggles.
+    const int activeStep = processor.isTransportRunning() ? processor.getCurrentStep() : -1;
+    for (int instrument = 0; instrument < 4; ++instrument)
+        for (int step = 0; step < 16; ++step)
+        {
+            auto* button = stepButtons[instrument * 16 + step];
+            const bool active = step == activeStep;
+            button->setColour(juce::TextButton::buttonColourId,
+                              active ? juce::Colour(0xff2563eb) : juce::Colour(0xff202d3b));
+            button->setColour(juce::TextButton::buttonOnColourId,
+                              active ? juce::Colour(0xff38bdf8) : juce::Colour(0xff0d9488));
+        }
     // Preserve user-facing preset errors and confirmations until the next action.
     const auto status = songStatus.getText();
     const bool isPresetFeedback = status == "LOAD FAILED" || status == "PRESET TOO LARGE"
