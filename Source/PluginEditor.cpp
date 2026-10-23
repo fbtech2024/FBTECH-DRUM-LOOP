@@ -1,9 +1,44 @@
 #include "PluginEditor.h"
 #include <limits>
 
+FBTECHDrumSkin::FBTECHDrumSkin()
+{
+    setColour(juce::ComboBox::backgroundColourId, juce::Colour(0xff101c2e));
+    setColour(juce::ComboBox::textColourId, juce::Colours::white);
+    setColour(juce::ComboBox::outlineColourId, juce::Colour(0xff34485e));
+    setColour(juce::PopupMenu::backgroundColourId, juce::Colour(0xff101c2e));
+    setColour(juce::PopupMenu::textColourId, juce::Colours::white);
+    setColour(juce::Slider::thumbColourId, juce::Colours::white);
+    setColour(juce::Slider::trackColourId, juce::Colour(0xff42648a));
+}
+void FBTECHDrumSkin::drawButtonBackground(juce::Graphics& g, juce::Button& button,
+                                           const juce::Colour& background,
+                                           bool hovered, bool pressed)
+{
+    auto bounds = button.getLocalBounds().toFloat().reduced(1.0f);
+    auto base = button.getToggleState() ? juce::Colour(0xff244c79) : background;
+    if (base.getBrightness() < 0.08f) base = juce::Colour(0xff17283d);
+    if (pressed) base = base.brighter(0.20f);
+    else if (hovered) base = base.brighter(0.12f);
+    g.setColour(juce::Colours::black.withAlpha(0.35f));
+    g.fillRoundedRectangle(bounds.translated(0.0f, 2.0f), 9.0f);
+    g.setColour(base);
+    g.fillRoundedRectangle(bounds, 9.0f);
+    g.setColour(juce::Colours::white.withAlpha(hovered ? 0.32f : 0.12f));
+    g.drawRoundedRectangle(bounds.reduced(0.5f), 9.0f, 1.0f);
+}
+void FBTECHDrumSkin::drawButtonText(juce::Graphics& g, juce::TextButton& button, bool, bool)
+{
+    g.setColour(juce::Colours::white);
+    g.setFont(juce::Font(juce::FontOptions(14.0f, juce::Font::bold)));
+    g.drawFittedText(button.getButtonText(), button.getLocalBounds().reduced(6, 3),
+                     juce::Justification::centred, 2);
+}
+
 FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRUMLOOPAudioProcessor& p)
     : AudioProcessorEditor(&p), processor(p)
 {
+    setLookAndFeel(&skin);
     const juce::StringArray views { "SUONA", "EDITOR RITMI", "ARRANGIAMENTO" };
     for (int i = 0; i < 3; ++i)
     {
@@ -369,6 +404,11 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     updateView();
 }
 
+FBTECHDRUMLOOPAudioProcessorEditor::~FBTECHDRUMLOOPAudioProcessorEditor()
+{
+    setLookAndFeel(nullptr);
+}
+
 void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
 {
     const bool pads = activeView == 0;
@@ -376,7 +416,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
     const bool song = activeView == 2;
     for (int i = 0; i < 3; ++i)
         viewButtons[i].setColour(juce::TextButton::buttonColourId,
-            i == activeView ? juce::Colour(0xff008e9d) : juce::Colour(0xff263545));
+            i == activeView ? juce::Colour(0xff214c7b) : juce::Colour(0xff132338));
     for (auto& b : drumPads) b.setVisible(pads);
     kitButton.setVisible(pads);
     for (auto& b : patternButtons) b.setVisible(pads || editor);
@@ -416,10 +456,10 @@ void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colour(0xff0c131c));
-    g.setColour(juce::Colour(0xff172534));
+    g.fillAll(juce::Colour(0xff000000));
+    g.setColour(juce::Colour(0xff07111f));
     g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(9.0f), 14.0f);
-    g.setColour(juce::Colour(0xff008e9d));
+    g.setColour(juce::Colour(0xff4b7fb2));
     g.fillRoundedRectangle(24.0f, 84.0f, 932.0f, 3.0f, 1.5f);
 }
 
