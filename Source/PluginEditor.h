@@ -27,6 +27,8 @@ private:
     juce::ComboBox sectionPatterns[8];
     juce::Label sectionLabels[8];
     juce::Slider songLengthSlider;
+    juce::ComboBox moveSlotSelector;
+    juce::TextButton moveEarlierButton { "MOVE LEFT" }, moveLaterButton { "MOVE RIGHT" };
     juce::Label songLengthLabel;
     juce::Label songStatus;
     juce::TextButton loadButtons[4];
