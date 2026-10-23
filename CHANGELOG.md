@@ -104,3 +104,7 @@
 ## Riduzione code CI — 2026-10-23
 - Workflow Windows e macOS Intel aggiornati con concorrenza per workflow/branch e annullamento delle compilazioni superate dai commit successivi.
 - Restano da verificare i run del MASTER finale e il comportamento in DAW.
+
+## Feedback import WAV — 2026-10-23
+- Messaggi di successo/errore visibili e persistenti dopo il caricamento WAV dei singoli pad; annullamento dialogo ignorato.
+- Test CI e DAW da verificare.
