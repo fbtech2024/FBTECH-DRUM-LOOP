@@ -350,6 +350,11 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         }
     }
 
+    // In standalone/manual operation the user's BPM is authoritative.
+    // With DAW sync enabled, host tempo is used only while host playback runs.
+    if (!syncToHost.load() || !hostPlaying)
+        tempoBpm = userTempo.load();
+    displayedTempo.store(tempoBpm);
     const bool running = hostPlaying || manualPlaying.load();
     transportRunning.store(running);
     if (!running)
