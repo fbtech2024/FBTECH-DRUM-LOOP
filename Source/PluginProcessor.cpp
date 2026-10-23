@@ -519,6 +519,8 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     xml->setAttribute("stopAtEnd", stopAtEnd.load());
     xml->setAttribute("autoFill", autoFill.load());
     xml->setAttribute("songLength", getSongLength());
+    xml->setAttribute("userBpm", getUserTempo());
+    xml->setAttribute("syncToHost", isSyncToHost());
     for (int section = 0; section < 8; ++section)
     {
         xml->setAttribute("songBars" + juce::String(section), getSongBars(section));
@@ -545,7 +547,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("volumeCC" + juce::String(i), learnedVolumeCcs[i].load());
-    xml->setAttribute("version", 12);
+    xml->setAttribute("version", 13);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -591,6 +593,8 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     stopAtEnd.store(xml->getBoolAttribute("stopAtEnd", false));
     autoFill.store(xml->getBoolAttribute("autoFill", false));
     setSongLength(xml->getIntAttribute("songLength", 4));
+    setUserTempo(xml->getDoubleAttribute("userBpm", 120.0));
+    setSyncToHost(xml->getBoolAttribute("syncToHost", true));
     for (int section = 0; section < 8; ++section)
     {
         setSongBars(section, xml->getIntAttribute("songBars" + juce::String(section), section == 0 || section == 3 ? 4 : 8));
