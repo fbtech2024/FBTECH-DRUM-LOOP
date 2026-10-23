@@ -35,7 +35,16 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     {
         midiLearnButtons[inst].setButtonText("MIDI LEARN");
         midiLearnButtons[inst].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff334155));
-        midiLearnButtons[inst].onClick = [this, inst] { processor.armMidiLearn(inst); };
+        midiLearnButtons[inst].onClick = [this, inst]
+        {
+            if (juce::ModifierKeys::getCurrentModifiers().isShiftDown())
+            {
+                processor.clearMidiLearn(inst);
+                processor.armMidiLearn(-1);
+            }
+            else
+                processor.armMidiLearn(inst);
+        };
         addAndMakeVisible(midiLearnButtons[inst]);
         instrumentLabels[inst].setText(names[inst], juce::dontSendNotification);
         instrumentLabels[inst].setColour(juce::Label::textColourId, juce::Colour(0xffcbd5e1));
