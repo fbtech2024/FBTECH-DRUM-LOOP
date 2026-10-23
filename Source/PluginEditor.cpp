@@ -251,7 +251,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     addAndMakeVisible(loadSongButton);
     songStatus.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(songStatus);
-    refreshPatternButtons();
+    refreshSongControls();
     startTimerHz(12);
 
     // resized() accesses all 64 step buttons; create them before sizing the editor.
@@ -328,7 +328,10 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshSongControls()
         sectionBars[i].setValue(processor.getSongBars(i), juce::dontSendNotification);
     }
     for (int i = 0; i < 4; ++i)
+    {
         volumeSliders[i].setValue(processor.getInstrumentVolume(i), juce::dontSendNotification);
+        loadButtons[i].setButtonText(processor.getSampleName(i).isNotEmpty() ? "WAV OK" : "LOAD WAV");
+    }
     refreshPatternButtons();
 }
 
