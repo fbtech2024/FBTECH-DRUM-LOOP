@@ -11,6 +11,7 @@ FBTECHDRUMLOOPAudioProcessor::FBTECHDRUMLOOPAudioProcessor()
 {
     formatManager.registerBasicFormats();
     for (auto& note : learnedNotes) note.store(-1);
+    for (auto& cc : learnedVolumeCcs) cc.store(-1);
     // Default 4/4 groove: kick, snare, eighth-note hats and one tom accent.
     for (int s : { 0, 8 }) pattern[0][0][s] = true;
     for (int s : { 4, 12 }) pattern[0][1][s] = true;
@@ -275,6 +276,22 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     for (const auto metadata : midi)
     {
         const auto message = metadata.getMessage();
+        if (message.isController())
+        {
+            const int cc = message.getControllerNumber();
+            const int learningCc = volumeCcLearnInstrument.exchange(-1);
+            if (learningCc >= 0 && learningCc < instrumentCount)
+            {
+                for (int voice = 0; voice < instrumentCount; ++voice)
+                    if (voice != learningCc && learnedVolumeCcs[voice].load() == cc)
+                        learnedVolumeCcs[voice].store(-1);
+                learnedVolumeCcs[learningCc].store(cc);
+            }
+            for (int voice = 0; voice < instrumentCount; ++voice)
+                if (learnedVolumeCcs[voice].load() == cc)
+                    setInstrumentVolume(voice, static_cast<float>(message.getControllerValue()) / 127.0f);
+            continue;
+        }
         if (!message.isNoteOn()) continue;
         const int note = message.getNoteNumber();
         // Ignore zero-velocity note-ons (MIDI note-off equivalents) during learn.
@@ -521,7 +538,9 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
     for (int i = 0; i < padCount; ++i)
         xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
-    xml->setAttribute("version", 11);
+    for (int i = 0; i < instrumentCount; ++i)
+        xml->setAttribute("volumeCC" + juce::String(i), learnedVolumeCcs[i].load());
+    xml->setAttribute("version", 12);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -553,6 +572,15 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
         learnedNotes[i].store(duplicate ? -1 : note);
     }
     midiLearnInstrument.store(-1);
+    volumeCcLearnInstrument.store(-1);
+    for (int i = 0; i < instrumentCount; ++i)
+    {
+        const int cc = juce::jlimit(-1, 127, xml->getIntAttribute("volumeCC" + juce::String(i), -1));
+        bool duplicate = false;
+        for (int previous = 0; previous < i; ++previous)
+            duplicate = duplicate || (cc >= 0 && learnedVolumeCcs[previous].load() == cc);
+        learnedVolumeCcs[i].store(duplicate ? -1 : cc);
+    }
     recording.store(false);
     songMode.store(xml->getBoolAttribute("songMode", false));
     stopAtEnd.store(xml->getBoolAttribute("stopAtEnd", false));
