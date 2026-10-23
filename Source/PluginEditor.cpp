@@ -108,7 +108,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     hostSyncToggle.onClick = [this] { processor.setSyncToHost(hostSyncToggle.getToggleState()); };
     addAndMakeVisible(hostSyncToggle);
 
-    hint.setText("16 pad WAV SHIFT+clic | MIDI LEARN clic=nota, ALT+clic=CC volume (pag. 1), SHIFT=cancella", juce::dontSendNotification);
+    hint.setText("RITMI: scegli, regola BPM e premi ASCOLTA  |  BATTERIA: suona i pad  |  EDITOR: crea il tuo loop", juce::dontSendNotification);
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
     addAndMakeVisible(hint);
 
@@ -751,6 +751,11 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
+    // Keep the console in sync with the current host/manual BPM without
+    // moving the rotary knob while the user is actively dragging it.
+    if (!bpmControl.isMouseButtonDown())
+        bpmControl.setValue(processor.getUserTempo(), juce::dontSendNotification);
+    hostSyncToggle.setToggleState(processor.isSyncToHost(), juce::dontSendNotification);
     // Highlight the active column without changing the stored step toggles.
     for (int inst = 0; inst < 4; ++inst)
     {
