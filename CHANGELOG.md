@@ -24,3 +24,7 @@
 ## Pad virtuali — 2026-10-23
 - Aggiunti quattro pad suonabili in italiano e trasferimento sicuro delle richieste dalla GUI al thread audio.
 - Interfaccia ampliata preservando l'arrangiatore; build e collaudo funzionale ancora da confermare.
+
+## Griglia 4x4 — 2026-10-23
+- Espansa l'interfaccia a 16 pad cliccabili, con quattro strumenti condivisi e numerazione italiana.
+- Nessuna aggiunta di voci audio indipendenti; verifica CI e usabilità ancora aperta.
