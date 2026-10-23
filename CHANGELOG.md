@@ -85,3 +85,8 @@
 - Espansi pattern e playback a 16 tracce, editor con quattro pagine di quattro tracce.
 - Preset versione 10 con migrazione dei vecchi pattern da quattro tracce.
 - Restano da verificare build e test host; MIDI Learn a 16 pad non ancora implementato.
+
+## MIDI Learn per tutti i pad — 2026-10-23
+- Sedici note MIDI assegnabili, selezionando la pagina del sequencer e usando MIDI Learn sulla relativa riga.
+- Mappature incluse nei preset v11, mantenendo lettura delle precedenti versioni.
+- Compilazioni e test con hardware reale da verificare.
