@@ -47,3 +47,8 @@
 - Impedite note MIDI Learn duplicate tra le quattro voci.
 - Aggiunto reset per singola voce con SHIFT+clic e istruzione nell'interfaccia.
 - Build nuove da verificare; controller fisico non ancora collaudato.
+
+## Fallback MIDI e preset — 2026-10-23
+- Soppressi alias General MIDI per le voci rimappate; risolto il conflitto con note apprese.
+- Validazione delle assegnazioni duplicate quando si ripristina un preset.
+- Build e test reali ancora da confermare.
