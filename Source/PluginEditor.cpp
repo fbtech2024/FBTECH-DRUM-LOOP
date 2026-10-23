@@ -44,8 +44,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
             : padNames[instrument] + "  " + juce::String(40 + 20 * (i / 4)) + "%");
         drumPads[i].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff164e63));
         drumPads[i].setColour(juce::TextButton::buttonOnColourId, juce::Colour(0xff0891b2));
-        // Four velocity levels per instrument make the 4x4 pad grid
-        // expressive even before the future 16-independent-voice migration.
+        // Keep the four velocity rows as an expressive default for the 16 pad slots.
         const float padVelocity = 0.4f + 0.2f * static_cast<float>(i / 4);
         drumPads[i].onClick = [this, i, padVelocity]
         {
@@ -56,8 +55,17 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
                 chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
                     [this, i](const juce::FileChooser& fc)
                     {
-                        if (processor.loadWav(i, fc.getResult()))
+                        const auto file = fc.getResult();
+                        if (file == juce::File{}) return; // User cancelled the dialog.
+                        if (processor.loadWav(i, file))
+                        {
                             drumPads[i].setButtonText(processor.getSampleName(i).substring(0, 18));
+                            songStatus.setText("WAV LOADED - PAD " + juce::String(i + 1), juce::dontSendNotification);
+                        }
+                        else
+                        {
+                            songStatus.setText("INVALID WAV - PAD " + juce::String(i + 1), juce::dontSendNotification);
+                        }
                     });
             }
             else
@@ -502,7 +510,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
     const auto status = songStatus.getText();
     const bool isPresetFeedback = status == "LOAD FAILED" || status == "PRESET TOO LARGE"
         || status == "INVALID OR OVERSIZED PRESET" || status == "INVALID SONG PRESET"
-        || status == "SONG PRESET LOADED" || status == "SONG PRESET SAVED";
+        || status == "SONG PRESET LOADED" || status == "SONG PRESET SAVED"
+        || status.startsWith("INVALID WAV") || status.startsWith("WAV LOADED");
     if (!isPresetFeedback)
         songStatus.setText(processor.isSongFinished() ? juce::String("SONG FINISHED - press PLAY to restart") : processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / " + juce::String(processor.getSongLength()) : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
     const int playing = processor.getPlayingPattern();
