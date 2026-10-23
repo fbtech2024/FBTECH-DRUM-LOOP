@@ -36,6 +36,7 @@ public:
     void armMidiLearn(int instrument) noexcept { midiLearnInstrument.store(instrument >= 0 && instrument < 4 ? instrument : -1); }
     int getMidiLearnInstrument() const noexcept { return midiLearnInstrument.load(); }
     int getLearnedNote(int instrument) const noexcept { return instrument >= 0 && instrument < 4 ? learnedNotes[instrument].load() : -1; }
+    void clearMidiLearn(int instrument) noexcept { if (instrument >= 0 && instrument < 4) learnedNotes[instrument].store(-1); }
     void selectPattern(int index) noexcept;
     void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
