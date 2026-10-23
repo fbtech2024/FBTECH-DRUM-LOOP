@@ -1,8 +1,15 @@
-# Changelog — FBTECH DRUM LOOP
+# CHANGELOG — FBTECH DRUM LOOP PRO
 
-## 0.1.0 — Base iniziale
-- Aggiunta struttura CMake/JUCE con destinazione VST3 per Windows x64.
-- Aggiunto sequencer 16-step con Kick, Snare, Hi-Hat e Tom sintetici.
-- Aggiunto pattern iniziale e serializzazione del pattern nello stato plugin.
-- Aggiunto workflow GitHub Actions per compilazione MSVC e artifact VST3.
-- La build non è ancora stata eseguita: non dichiarare il plugin compilato o testato finché GitHub Actions non termina.
+## Sviluppo MASTER — 2026-10-23 (non ancora release pubblica)
+- Sequencer 16-step con 4 strumenti e suoni sintetici/WAV.
+- Kit WAV da cartella, volumi per voce, pattern A/B/C/D, FILL NEXT BAR.
+- SONG MODE con 8 slot, pattern e durata per slot, AUTO FILL, STOP AT END.
+- Salvataggio/caricamento arrangiamento locale in formato .fbdl.
+- MOVE LEFT / MOVE RIGHT, ADD SLOT / REMOVE SLOT.
+- Build Windows e Mac Intel con GitHub Actions.
+- Aggiornato STATO_PROGETTO.md con piano unico di completamento e rischi aperti.
+
+## Prima della release
+- Confermare CI sul commit finale, persistenza dei kit, compatibilità DAW e Mac Intel reale.
+- Verificare licenze JUCE e campioni prima della distribuzione.
+- Non dichiarare completata la release finché questi punti non sono chiusi.
