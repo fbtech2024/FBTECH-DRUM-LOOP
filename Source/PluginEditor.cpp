@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include <limits>
 
 FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRUMLOOPAudioProcessor& p)
     : AudioProcessorEditor(&p), processor(p)
@@ -240,6 +241,17 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
                 if (!file.loadFileAsData(data) || data.getSize() == 0)
                 {
                     songStatus.setText("LOAD FAILED", juce::dontSendNotification);
+                    return;
+                }
+                if (data.getSize() > static_cast<size_t>(std::numeric_limits<int>::max()))
+                {
+                    songStatus.setText("PRESET TOO LARGE", juce::dontSendNotification);
+                    return;
+                }
+                auto presetXml = getXmlFromBinary(data.getData(), static_cast<int>(data.getSize()));
+                if (!presetXml || !presetXml->hasTagName("FBTECH_DRUM_LOOP_STATE"))
+                {
+                    songStatus.setText("INVALID SONG PRESET", juce::dontSendNotification);
                     return;
                 }
                 processor.setStateInformation(data.getData(), static_cast<int>(data.getSize()));
