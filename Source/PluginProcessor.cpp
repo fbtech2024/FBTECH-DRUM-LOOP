@@ -277,6 +277,8 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         const auto message = metadata.getMessage();
         if (!message.isNoteOn()) continue;
         const int note = message.getNoteNumber();
+        // Ignore zero-velocity note-ons (MIDI note-off equivalents) during learn.
+        if (message.getVelocity() == 0) continue;
         const int learning = midiLearnInstrument.exchange(-1);
         if (learning >= 0 && learning < padCount)
         {
