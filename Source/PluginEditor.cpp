@@ -248,7 +248,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
                     songStatus.setText("PRESET TOO LARGE", juce::dontSendNotification);
                     return;
                 }
-                auto presetXml = getXmlFromBinary(data.getData(), static_cast<int>(data.getSize()));
+                auto presetXml = processor.getXmlFromBinary(data.getData(), static_cast<int>(data.getSize()));
                 if (!presetXml || !presetXml->hasTagName("FBTECH_DRUM_LOOP_STATE"))
                 {
                     songStatus.setText("INVALID SONG PRESET", juce::dontSendNotification);
