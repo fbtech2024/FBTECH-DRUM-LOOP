@@ -199,3 +199,6 @@ Branch unico di sviluppo: main
 
 ## 2026-10-23 — console: testi e BPM
 - Ridotta la guida tecnica visibile nella console a istruzioni musicali essenziali (RITMI, BATTERIA, EDITOR). Sincronizzato il controllo BPM con lo stato salvato senza interferire durante il trascinamento. Le due build precedenti del MASTER 8e6c36c8 sono risultate riuscite su GitHub Actions; questa revisione richiede una nuova compilazione. Nessun kit acustico incluso ancora.
+
+## 2026-10-23 — pad touchscreen
+- Nella vista BATTERIA ingranditi i 16 pad da 220x73 a 220x87 pixel, con maggiore spaziatura verticale; riallineati caricamento kit, fill e registrazione. La risposta al tocco e il comportamento musicale non sono stati ancora provati su hardware touch. I pad restano suoni sintetizzati se non sono caricati WAV reali. Build della revisione in attesa.
