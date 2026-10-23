@@ -292,6 +292,9 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     // Reject invalid host tempo values before they reach sequencer timing math.
     if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
         tempoBpm = 120.0;
+    // Defensive guard: hosts may briefly supply invalid sample rates during setup.
+    if (!std::isfinite(currentSampleRate) || currentSampleRate <= 0.0)
+        return;
     const double beatsPerSample = tempoBpm / (60.0 * currentSampleRate);
     // Re-anchor the free-running clock before its floating-point precision degrades
     // during multi-day sessions without a DAW transport position.
