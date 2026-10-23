@@ -18,6 +18,8 @@ private:
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
     juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
     juce::TextButton fillButton { "FILL NEXT BAR" };
+    juce::TextButton saveSongButton { "SAVE SONG" }, loadSongButton { "LOAD SONG" };
+    void refreshSongControls();
     juce::ToggleButton songToggle { "SONG MODE" };
     juce::ToggleButton stopAtEndToggle { "STOP AT END" };
     juce::ToggleButton autoFillToggle { "AUTO FILL" };
