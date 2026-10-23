@@ -25,7 +25,7 @@ private:
     juce::TextButton viewButtons[5];
     juce::ComboBox genreSelector, grooveSelector;
     juce::TextButton grooveLoadButton { "CARICA RITMO" }, groovePreviewButton { "ASCOLTA" };
-    juce::Label grooveTitle, grooveDescription;
+    juce::Label grooveTitle, grooveDescription, variationGuide;
     bool loadSelectedGroove();
     void refreshGrooves();
     int activeView = 0;
