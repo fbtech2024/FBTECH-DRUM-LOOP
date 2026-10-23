@@ -7,6 +7,11 @@ on:
       - main
   workflow_dispatch:
 
+# Keep only the newest main-branch build when several commits arrive quickly.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
