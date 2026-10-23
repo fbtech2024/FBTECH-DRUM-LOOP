@@ -76,3 +76,9 @@ Branch unico di sviluppo: main
 - Registrazione disabilitata in Song Mode per evitare modifiche impreviste all'arrangiamento.
 - Questa prima implementazione registra attivazioni (on/off), non velocity per step né durata; non sono disponibili overdub undo o cancellazione selettiva.
 - Da testare sincronizzazione host, latenza, note ai confini della battuta, preset, GUI e controller ATOM. Build commit 97f9031d in coda al momento della verifica.
+
+## MIDI Learn iniziale — 2026-10-23
+- Quattro controlli MIDI Learn per assegnare note fisiche alle quattro voci; mapping salvato nello stato preset XML v8, con lettura retrocompatibile dei preset v7.
+- Le note GM restano fallback: la stessa nota potrebbe attivare un fallback se assegnata in modo ambiguo. Gestione conflitti e reset mapping da completare.
+- Non implementati 16 mapping indipendenti, controllo knob/transport/LED ATOM, né test su hardware reale.
+- Commit UI 9b16b5e0: compilazione in attesa di esito.
