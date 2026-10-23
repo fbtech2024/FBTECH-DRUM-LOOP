@@ -31,9 +31,9 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         // Four velocity levels per instrument make the 4x4 pad grid
         // expressive even before the future 16-independent-voice migration.
         const float padVelocity = 0.4f + 0.2f * static_cast<float>(i / 4);
-        drumPads[i].onClick = [this, instrument, padVelocity]
+        drumPads[i].onClick = [this, i, padVelocity]
         {
-            processor.playPad(instrument, padVelocity);
+            processor.playPad(i, padVelocity);
         };
         addAndMakeVisible(drumPads[i]);
     }
