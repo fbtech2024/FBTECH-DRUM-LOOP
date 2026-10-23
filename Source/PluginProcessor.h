@@ -37,6 +37,10 @@ public:
     int getMidiLearnInstrument() const noexcept { return midiLearnInstrument.load(); }
     int getLearnedNote(int instrument) const noexcept { return instrument >= 0 && instrument < 16 ? learnedNotes[instrument].load() : -1; }
     void clearMidiLearn(int instrument) noexcept { if (instrument >= 0 && instrument < 16) learnedNotes[instrument].store(-1); }
+    void armVolumeCcLearn(int instrument) noexcept { volumeCcLearnInstrument.store(instrument >= 0 && instrument < instrumentCount ? instrument : -1); }
+    int getVolumeCcLearnInstrument() const noexcept { return volumeCcLearnInstrument.load(); }
+    int getLearnedVolumeCc(int instrument) const noexcept { return instrument >= 0 && instrument < instrumentCount ? learnedVolumeCcs[instrument].load() : -1; }
+    void clearVolumeCcLearn(int instrument) noexcept { if (instrument >= 0 && instrument < instrumentCount) learnedVolumeCcs[instrument].store(-1); }
     void selectPattern(int index) noexcept;
     void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
@@ -90,6 +94,8 @@ private:
     std::atomic<bool> recording { false };
     std::atomic<int> midiLearnInstrument { -1 };
     std::atomic<int> learnedNotes[padCount];
+    std::atomic<int> volumeCcLearnInstrument { -1 };
+    std::atomic<int> learnedVolumeCcs[instrumentCount];
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
