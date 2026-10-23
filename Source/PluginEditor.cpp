@@ -104,6 +104,17 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     bpmControl.setColour(juce::Slider::rotarySliderFillColourId, juce::Colour(0xff1bbaf3));
     bpmControl.onValueChange = [this] { processor.setUserTempo(bpmControl.getValue()); };
     addAndMakeVisible(bpmControl);
+    toneControl.setSliderStyle(juce::Slider::LinearHorizontal);
+    toneControl.setTextBoxStyle(juce::Slider::TextBoxRight, false, 54, 20);
+    toneControl.setRange(0.0, 1.0, 0.01);
+    toneControl.setValue(processor.getTone(), juce::dontSendNotification);
+    toneControl.setColour(juce::Slider::trackColourId, juce::Colour(0xff1bbaf3));
+    toneControl.onValueChange = [this] { processor.setTone(static_cast<float>(toneControl.getValue())); };
+    addAndMakeVisible(toneControl);
+    toneCaption.setText("TONO  SCURO  /  BRILLANTE", juce::dontSendNotification);
+    toneCaption.setColour(juce::Label::textColourId, juce::Colour(0xffb7d4e9));
+    toneCaption.setFont(juce::Font(juce::FontOptions(12.0f, juce::Font::bold)));
+    addAndMakeVisible(toneCaption);
     hostSyncToggle.setToggleState(processor.isSyncToHost(), juce::dontSendNotification);
     hostSyncToggle.onClick = [this] { processor.setSyncToHost(hostSyncToggle.getToggleState()); };
     addAndMakeVisible(hostSyncToggle);
@@ -547,6 +558,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
     grooveLoadButton.setVisible(library);
     groovePreviewButton.setVisible(library);
     bpmControl.setVisible(library);
+    toneControl.setVisible(library);
+    toneCaption.setVisible(library);
     hostSyncToggle.setVisible(library);
     variationGuide.setVisible(library);
     for (auto& b : drumPads) b.setVisible(pads);
@@ -665,6 +678,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         groovePreviewButton.setBounds(315, 438, 194, 47);
         variationGuide.setBounds(315, 506, 608, 30);
         bpmControl.setBounds(779, 371, 135, 130);
+        toneCaption.setBounds(540, 364, 230, 24);
+        toneControl.setBounds(535, 391, 234, 32);
         hostSyncToggle.setBounds(778, 506, 140, 30);
     }
     else if (activeView == 1)
