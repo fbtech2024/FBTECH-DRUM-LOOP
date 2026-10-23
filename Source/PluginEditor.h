@@ -14,6 +14,7 @@ private:
     FBTECHDRUMLOOPAudioProcessor& processor;
     juce::Label title, tempoLabel, hint;
     juce::Label instrumentLabels[4];
+    juce::TextButton drumPads[4];
     juce::TextButton clearButton { "CLEAR PATTERN" };
     juce::TextButton kitButton { "LOAD KIT FOLDER" };
     juce::TextButton playButton { "PLAY" }, stopButton { "STOP" };
