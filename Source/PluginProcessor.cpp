@@ -519,7 +519,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
-    xml->setAttribute("version", 8);
+    xml->setAttribute("version", 9);
     copyXmlToBinary(*xml, destData);
 }
 
