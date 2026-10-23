@@ -95,3 +95,10 @@ Branch unico di sviluppo: main
 - Caricamento preset normalizza eventuali note MIDI duplicate tra voci.
 - Le quattro voci continuano a condividere 16 pad grafici; ATOM, 16 voci indipendenti, registrazione e precisione richiedono collaudo hardware.
 - Commit motore 1b097fcd; build e test ancora da verificare.
+
+## Revisione registrazione e UI — 2026-10-23
+- CI Windows e Mac Intel riuscite sul MASTER precedente 0fb0e31a.
+- Corretto il refresh dell'editor: i colpi acquisiti dal thread audio ora aggiornano i 64 step visibili senza generare click ricorsivi.
+- Registrazione ora scrive nel banco realmente in riproduzione, evitando di modificare il banco in attesa di cambio alla battuta.
+- Audit delle 16 voci: architettura attuale ha array e salvataggio fissi a quattro strumenti; l'espansione richiede migrazione coordinata di WAV, pattern, mapping, preset e GUI, non è ancora implementata.
+- Commit 7121735a; nuove build e test reali ancora da verificare.
