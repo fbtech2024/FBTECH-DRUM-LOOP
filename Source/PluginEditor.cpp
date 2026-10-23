@@ -23,7 +23,11 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     stepPageSelector.addItem("STEPS 9-12", 3);
     stepPageSelector.addItem("STEPS 13-16", 4);
     stepPageSelector.setSelectedId(1, juce::dontSendNotification);
-    stepPageSelector.onChange = [this] { stepPage = juce::jlimit(0, 3, stepPageSelector.getSelectedId() - 1); };
+    stepPageSelector.onChange = [this]
+    {
+        processor.armMidiLearn(-1); // Changing pages must not assign a note to a hidden pad.
+        stepPage = juce::jlimit(0, 3, stepPageSelector.getSelectedId() - 1);
+    };
     addAndMakeVisible(stepPageSelector);
 
     const juce::StringArray names { "KICK", "SNARE", "HI-HAT", "TOM" };
