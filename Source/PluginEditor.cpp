@@ -49,7 +49,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
                 processor.armMidiLearn(-1);
             }
             else
-                processor.armMidiLearn(inst);
+                processor.armMidiLearn(processor.getMidiLearnInstrument() == inst ? -1 : inst);
         };
         addAndMakeVisible(midiLearnButtons[inst]);
         instrumentLabels[inst].setText(names[inst], juce::dontSendNotification);
