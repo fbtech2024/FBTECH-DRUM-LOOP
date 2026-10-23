@@ -61,3 +61,7 @@
 ## Dinamica dei 16 pad GUI — 2026-10-23
 - Quattro intensità di colpo per ognuna delle quattro voci, mantenendo compatibilità con il motore attuale.
 - Espansione a 16 voci indipendenti ancora non implementata.
+
+## Rifinitura interfaccia — 2026-10-23
+- Etichette pad aggiornate con percentuali di velocity.
+- Secondo clic sul MIDI Learn armato annulla l'apprendimento senza cancellare la nota salvata.
