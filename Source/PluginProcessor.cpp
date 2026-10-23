@@ -90,13 +90,13 @@ void FBTECHDRUMLOOPAudioProcessor::selectPattern(int index) noexcept
 
 bool FBTECHDRUMLOOPAudioProcessor::getStep(int instrument, int step) const
 {
-    return instrument >= 0 && instrument < instrumentCount && step >= 0 && step < stepCount
+    return instrument >= 0 && instrument < padCount && step >= 0 && step < stepCount
         ? pattern[selectedPattern.load()][instrument][step].load() : false;
 }
 
 void FBTECHDRUMLOOPAudioProcessor::setStep(int instrument, int step, bool enabled)
 {
-    if (instrument >= 0 && instrument < instrumentCount && step >= 0 && step < stepCount)
+    if (instrument >= 0 && instrument < padCount && step >= 0 && step < stepCount)
         pattern[selectedPattern.load()][instrument][step] = enabled;
 }
 
@@ -400,8 +400,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 if (running && recording.load() && !songMode.load())
                 {
                     const int recordedStep = static_cast<int>(std::floor(ppq * 4.0 + 0.5)) & 15;
-                    if (hit.instrument < instrumentCount)
-                        pattern[playingPattern.load()][hit.instrument][recordedStep].store(true);
+                    pattern[playingPattern.load()][hit.instrument][recordedStep].store(true);
                 }
                 switch (hit.instrument)
                 {
@@ -447,7 +446,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                     fillActive = true;
             }
             const int bank = playingPattern.load();
-            for (int inst = 0; inst < instrumentCount; ++inst)
+            for (int inst = 0; inst < padCount; ++inst)
             {
                 bool hit = pattern[bank][inst][step];
                 if (fillActive)
@@ -484,7 +483,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
     for (int bank = 0; bank < 4; ++bank)
     {
         juce::String bits;
-        for (int inst = 0; inst < instrumentCount; ++inst)
+        for (int inst = 0; inst < padCount; ++inst)
             for (int step = 0; step < stepCount; ++step)
                 bits += pattern[bank][inst][step] ? '1' : '0';
         xml->setAttribute("pattern" + juce::String(bank), bits);
@@ -519,7 +518,7 @@ void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destDa
         xml->setAttribute("volume" + juce::String(i), static_cast<double>(getInstrumentVolume(i)));
     for (int i = 0; i < instrumentCount; ++i)
         xml->setAttribute("midiNote" + juce::String(i), learnedNotes[i].load());
-    xml->setAttribute("version", 9);
+    xml->setAttribute("version", 10);
     copyXmlToBinary(*xml, destData);
 }
 
@@ -531,10 +530,13 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
     {
         const auto key = "pattern" + juce::String(bank);
         const auto bits = xml->getStringAttribute(key, bank == 0 ? xml->getStringAttribute("pattern") : juce::String());
-        if (bits.length() != instrumentCount * stepCount) continue;
-        for (int inst = 0; inst < instrumentCount; ++inst)
+        // Version 10 stores sixteen tracks; older presets contain four.
+        // Clear unused tracks on restore so stale hits cannot survive loading.
+        if (bits.length() != instrumentCount * stepCount && bits.length() != padCount * stepCount) continue;
+        const int storedTracks = bits.length() / stepCount;
+        for (int inst = 0; inst < padCount; ++inst)
             for (int step = 0; step < stepCount; ++step)
-                pattern[bank][inst][step] = bits[inst * stepCount + step] == '1';
+                pattern[bank][inst][step] = inst < storedTracks && bits[inst * stepCount + step] == '1';
     }
     for (int i = 0; i < instrumentCount; ++i)
         setInstrumentVolume(i, static_cast<float>(xml->getDoubleAttribute("volume" + juce::String(i), 1.0)));
