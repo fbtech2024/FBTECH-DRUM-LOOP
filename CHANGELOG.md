@@ -69,3 +69,8 @@
 ## Fine Song Mode — 2026-10-23
 - Corretto il taglio delle code audio alla fine della song; niente nuovi step dopo STOP AT END, rendering WAV/synth continua.
 - Nuova build da verificare.
+
+## Inizio migrazione eventi 16 pad — 2026-10-23
+- `pendingPadHits` espanso da quattro a sedici slot atomici, uno per pad.
+- I pad grafici passano il proprio indice al motore; il rendering conserva temporaneamente quattro voci per compatibilità.
+- Nessuna migrazione del formato preset in questa fase.
