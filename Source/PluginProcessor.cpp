@@ -282,14 +282,19 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             learnedNotes[learning].store(note);
         }
         int instrument = -1;
-        // Learned note assignments override the General MIDI defaults.
+        // A learned note takes precedence; each learned voice's original GM
+        // aliases are suppressed so one note cannot accidentally play two voices.
         for (int inst = 0; inst < instrumentCount; ++inst)
             if (learnedNotes[inst].load() == note) { instrument = inst; break; }
         if (instrument < 0)
-            instrument = note == 36 || note == 35 ? 0
-                       : note == 38 || note == 40 ? 1
-                       : note == 42 || note == 44 || note == 46 ? 2
-                       : note == 41 || note == 43 || note == 45 || note == 47 || note == 48 || note == 50 ? 3 : -1;
+        {
+            const int gmInstrument = note == 36 || note == 35 ? 0
+                                   : note == 38 || note == 40 ? 1
+                                   : note == 42 || note == 44 || note == 46 ? 2
+                                   : note == 41 || note == 43 || note == 45 || note == 47 || note == 48 || note == 50 ? 3 : -1;
+            if (gmInstrument >= 0 && learnedNotes[gmInstrument].load() < 0)
+                instrument = gmInstrument;
+        }
         if (instrument >= 0 && metadata.samplePosition >= 0
             && metadata.samplePosition < buffer.getNumSamples())
             if (hitCount < incomingHits.size())
