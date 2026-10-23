@@ -29,6 +29,7 @@ private:
     juce::Slider songLengthSlider;
     juce::ComboBox moveSlotSelector;
     juce::TextButton moveEarlierButton { "MOVE LEFT" }, moveLaterButton { "MOVE RIGHT" };
+    juce::TextButton insertSlotButton { "ADD SLOT" }, removeSlotButton { "REMOVE SLOT" };
     juce::Label songLengthLabel;
     juce::Label songStatus;
     juce::TextButton loadButtons[4];
