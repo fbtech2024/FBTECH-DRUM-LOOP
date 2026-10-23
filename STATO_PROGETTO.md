@@ -151,3 +151,10 @@ Branch unico di sviluppo: main
 - Eventi MIDI a velocità zero non vengono usati per apprendere note.
 - Non è ancora presente un protocollo dedicato PreSonus ATOM per LED, manopole e trasporto: compatibilità basata sulle note MIDI ricevute e sui mapping appresi.
 - Compilazioni e prove in host DAW da verificare.
+
+## MIDI CC Learn per volumi mixer — 2026-10-23
+- Aggiunto MIDI CC Learn per i quattro volumi mixer esistenti (cassa, rullante, hi-hat, tom): nella pagina STEPS 1-4, ALT+clic sul rispettivo MIDI LEARN e muovere una manopola che invia CC.
+- I CC assegnati controllano volume da 0 a 1,5, riflesso nei quattro slider GUI. Ogni CC può appartenere a una sola voce; SHIFT+clic cancella assegnazione nota e CC della voce nella prima pagina.
+- Preset formato 12 memorizza `volumeCC0..3` e mantiene lettura di versioni precedenti.
+- NON è un'integrazione nativa ATOM: funziona solo se il controller/DAW trasmette messaggi MIDI CC al plugin. Non sono implementati feedback LED, controllo trasporto e protocolli proprietari.
+- Build CI e test host/controller reali da verificare.
