@@ -80,3 +80,8 @@
 - Preset formato 9 con campioni incorporati per tutti i pad, compatibilità lettura preset precedenti.
 - Nomi dei campioni mostrati alla riapertura editor.
 - Sequencer/MIDI Learn restano a quattro voci; build e test da verificare.
+
+## Sequencer a 16 tracce — 2026-10-23
+- Espansi pattern e playback a 16 tracce, editor con quattro pagine di quattro tracce.
+- Preset versione 10 con migrazione dei vecchi pattern da quattro tracce.
+- Restano da verificare build e test host; MIDI Learn a 16 pad non ancora implementato.
