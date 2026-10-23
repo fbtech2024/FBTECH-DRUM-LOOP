@@ -13,16 +13,17 @@ Branch unico di sviluppo: main
 
 ## Implementato ma non ancora certificato come release
 - ADD SLOT / REMOVE SLOT: commit 3e97781e, compilazioni avviate, collaudo finale non confermato.
-- Mac Intel: compilazione VST3 riuscita al commit 81ec3f7c; test reale in DAW macOS non confermato.
+- Mac Intel: compilazione VST3 riuscita anche al commit dec51f51; test reale in DAW macOS non confermato.
 - I WAV sono ora incorporati nei preset XML v7 come PCM mono Base64; non ancora collaudata la riapertura in DAW. I preset possono risultare grandi.
-- Validazione preset importati e gestione errori richiedono hardening.
+- Import WAV e preset rafforzato con controlli di dimensione, sample rate e valori PCM; test di regressione ancora da completare.
 - I pattern sono ora atomici; rimangono da verificare le prestazioni realtime di caricamento campioni e serializzazione.
 - Comportamento del trasporto/STOP AT END in host diversi da verificare.
 - Licenza JUCE e diritti dei campioni da definire prima di distribuzione pubblica.
 
 ## CI e correzioni recenti
-- Windows e macOS Intel: build riuscite al commit 81ec3f7c.
-- Modifiche successive: 173297bb (validazione rate), 6479eecf (overflow step), 48529467 (BPM), c6d3ec3c (downmix stereo); verificare esito CI.
+- Windows e macOS Intel: build riuscite per il medesimo commit dec51f51.
+- Windows: build riuscita anche sul commit 2a7786ae; macOS Intel dello stesso commit ancora in esecuzione al momento della verifica.
+- Ultime modifiche: validazione WAV, protezione dimensione preset, sincronizzazione PPQ DAW e messaggi UI persistenti.
 - Nessuna release finale o collaudo completo dichiarato.
 
 ## Piano di chiusura: un solo ciclo di release
