@@ -314,7 +314,6 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         songBarCount = 0;
         lastStep = -1;
         currentStep.store(-1);
-        wasPlaying = false;
         fillActive = false;
         fillRequested.store(false);
         // Clear sequencer voices only on the running-to-stopped transition.
@@ -338,7 +337,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         songFinished.store(false);
         if (songMode.load()) playingPattern.store(getSongPattern(0));
     }
-    wasPlaying = true;
+    wasPlaying = running;
     if (running && songFinished.load() && hitCount == 0) return;
     // Reject invalid host tempo values before they reach sequencer timing math.
     if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
