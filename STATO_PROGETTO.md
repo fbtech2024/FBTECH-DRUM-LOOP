@@ -102,3 +102,8 @@ Branch unico di sviluppo: main
 - Registrazione ora scrive nel banco realmente in riproduzione, evitando di modificare il banco in attesa di cambio alla battuta.
 - Audit delle 16 voci: architettura attuale ha array e salvataggio fissi a quattro strumenti; l'espansione richiede migrazione coordinata di WAV, pattern, mapping, preset e GUI, non è ancora implementata.
 - Commit 7121735a; nuove build e test reali ancora da verificare.
+
+## Dinamica pad virtuali — 2026-10-23
+- I 16 pad virtuali offrono quattro livelli di velocity per ciascuna delle quattro voci (0.4/0.6/0.8/1.0); non sono 16 strumenti indipendenti.
+- L'assegnazione usa il percorso playPad esistente, quindi nessun nuovo motore audio o formato preset.
+- Build del commit e02a8f9d e test audio ancora da verificare; CI precedenti per le correzioni registrazione risultavano in corso all'ultimo controllo.
