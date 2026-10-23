@@ -28,3 +28,8 @@
 ## Griglia 4x4 — 2026-10-23
 - Espansa l'interfaccia a 16 pad cliccabili, con quattro strumenti condivisi e numerazione italiana.
 - Nessuna aggiunta di voci audio indipendenti; verifica CI e usabilità ancora aperta.
+
+## Dinamica WAV e code audio — 2026-10-23
+- Aggiunto controllo velocity sui campioni WAV, mantenendo il trattamento già presente per i sintetizzatori.
+- Rimossa uscita anticipata alla fine del brano che poteva tagliare code audio.
+- CI e test audio reali ancora da confermare.
