@@ -113,3 +113,9 @@ Branch unico di sviluppo: main
 - MIDI Learn si può annullare ricliccando il pulsante armato; SHIFT+clic continua a cancellare la mappatura.
 - L'architettura attuale mantiene quattro strumenti indipendenti; l'estensione a sedici non è stata ancora effettuata per evitare rotture dei preset.
 - Build e test reali delle ultime modifiche da verificare.
+
+## Correzione code audio Song Mode — 2026-10-23
+- Al termine della song con STOP AT END, il processBlock non interrompe più immediatamente il buffer: le code di WAV e sintetizzatori possono decadere naturalmente.
+- Non vengono avviati nuovi colpi del sequencer dopo songFinished; la riproduzione manuale MIDI resta possibile.
+- La migrazione a 16 voci indipendenti NON è ancora iniziata: per evitare regressioni si sta stabilizzando il motore a quattro voci prima della modifica del formato preset.
+- Commit 4c7374f1: build e test audio da verificare.
