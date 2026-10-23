@@ -52,3 +52,8 @@
 - Soppressi alias General MIDI per le voci rimappate; risolto il conflitto con note apprese.
 - Validazione delle assegnazioni duplicate quando si ripristina un preset.
 - Build e test reali ancora da confermare.
+
+## Correzioni registrazione live — 2026-10-23
+- Aggiornamento visivo dei passi registrati nella griglia 16-step.
+- La registrazione usa il banco attualmente in riproduzione, non quello accodato.
+- Verificata architettura quattro voci prima di avviare la migrazione a sedici.
