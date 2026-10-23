@@ -115,3 +115,10 @@
 
 - UI skin JUCE personalizzata (LookAndFeel_V4): pulsanti arrotondati, stati hover/pressed, palette blu scuro/nero/bianco, menu e slider coerenti. Commit 017c8a8e; build e test DAW non ancora verificati.
 - Ricerca UX: Addictive Drums 2 usa navigazione per pagine e browser groove con anteprima; la libreria groove FBTECH e' ancora da implementare, senza inventare contenuti.
+
+## UI FBTECH DRUMS LOOP e prima libreria reale (2026-10-23)
+- Navigazione implementata nel codice: RITMI, BATTERIA, EDITOR, ARRANGIAMENTO, IMPOSTAZIONI. Colori blu scuro, nero, bianco e ciano ispirati allo screenshot fornito dall'utente; interfaccia JUCE disegnata e non screenshot incorporato.
+- Browser con filtri per 9 generi e 13 groove effettivi offline (sequenze di 16 step per le 4 voci synth). ASCOLTA carica il groove nel pattern A e avvia il motore; CARICA RITMO sostituisce il pattern A. Per sicurezza occorre fermare il trasporto prima di cambiare groove.
+- I 13 groove sono pattern ritmici programmati, NON campioni acustici professionali, non sono i 520 ritmi illustrativi dell'anteprima. Kit WAV caricabili separatamente. Il tempo segue la DAW.
+- Limitazioni: grafica semplificata rispetto al mockup fotografico, nessuna fotografia incorporata; le variazioni A-D non sono generate automaticamente dal browser; ricerca testuale, anteprime audio pre-renderizzate, e libreria estesa non ancora implementate.
+- Commit UI 2156d127; compilazione Windows/Mac Intel e prova in FBTECH Music ancora da verificare. Motore DSP non modificato.
