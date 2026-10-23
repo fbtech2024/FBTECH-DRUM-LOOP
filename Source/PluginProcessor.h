@@ -54,6 +54,8 @@ public:
     double getUserTempo() const noexcept { return userTempo.load(); }
     void setSyncToHost(bool sync) noexcept { syncToHost.store(sync); }
     bool isSyncToHost() const noexcept { return syncToHost.load(); }
+    void setTone(float tone) noexcept { masterTone.store(juce::jlimit(0.0f, 1.0f, tone)); }
+    float getTone() const noexcept { return masterTone.load(); }
     int getCurrentStep() const noexcept { return currentStep.load(); }
     void setInstrumentVolume(int instrument, float value) noexcept;
     float getInstrumentVolume(int instrument) const noexcept;
@@ -106,6 +108,8 @@ private:
     std::atomic<double> userTempo { 120.0 };
     std::atomic<double> displayedTempo { 120.0 };
     std::atomic<bool> syncToHost { true };
+    std::atomic<float> masterTone { 1.0f };
+    float toneFilterState = 0.0f;
     double freeRunPpq = 0.0;
     int lastStep = -1;
     std::atomic<int> currentStep { -1 };
