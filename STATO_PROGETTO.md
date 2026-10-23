@@ -107,3 +107,9 @@ Branch unico di sviluppo: main
 - I 16 pad virtuali offrono quattro livelli di velocity per ciascuna delle quattro voci (0.4/0.6/0.8/1.0); non sono 16 strumenti indipendenti.
 - L'assegnazione usa il percorso playPad esistente, quindi nessun nuovo motore audio o formato preset.
 - Build del commit e02a8f9d e test audio ancora da verificare; CI precedenti per le correzioni registrazione risultavano in corso all'ultimo controllo.
+
+## Usabilità pad e MIDI Learn — 2026-10-23
+- Ogni pad virtuale ora indica l'intensità effettiva (40%, 60%, 80%, 100%) della propria riga.
+- MIDI Learn si può annullare ricliccando il pulsante armato; SHIFT+clic continua a cancellare la mappatura.
+- L'architettura attuale mantiene quattro strumenti indipendenti; l'estensione a sedici non è stata ancora effettuata per evitare rotture dei preset.
+- Build e test reali delle ultime modifiche da verificare.
