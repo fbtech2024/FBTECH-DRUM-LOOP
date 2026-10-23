@@ -42,3 +42,8 @@
 ## MIDI Learn — 2026-10-23
 - Aggiunta assegnazione MIDI Learn per ciascuna delle quattro voci e persistenza nel preset v8.
 - Pulsanti GUI mostrano nota appresa; da verificare compilazione, conflitti di mapping e funzionamento ATOM.
+
+## MIDI Learn: gestione assegnazioni — 2026-10-23
+- Impedite note MIDI Learn duplicate tra le quattro voci.
+- Aggiunto reset per singola voce con SHIFT+clic e istruzione nell'interfaccia.
+- Build nuove da verificare; controller fisico non ancora collaudato.
