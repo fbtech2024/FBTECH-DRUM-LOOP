@@ -119,3 +119,9 @@ Branch unico di sviluppo: main
 - Non vengono avviati nuovi colpi del sequencer dopo songFinished; la riproduzione manuale MIDI resta possibile.
 - La migrazione a 16 voci indipendenti NON è ancora iniziata: per evitare regressioni si sta stabilizzando il motore a quattro voci prima della modifica del formato preset.
 - Commit 4c7374f1: build e test audio da verificare.
+
+## Prima fase migrazione a 16 pad — 2026-10-23
+- Implementati 16 slot atomici distinti per eventi GUI (prima erano 4), con consumo realtime senza allocazioni e inoltro compatibile alle quattro voci sonore esistenti tramite `pad % 4`.
+- La GUI invia ora l'indice del pad 0..15 invece dell'indice della voce 0..3. Gli eventi distinti di pad diversi non si sovrascrivono più prima del blocco audio, pur condividendo ancora il suono della stessa voce.
+- NON ancora implementati 16 campioni WAV indipendenti, 16 tracce del sequencer, né MIDI Learn per 16 voci. I preset rimangono nel formato precedente.
+- Nuove build e test DAW/ATOM da verificare.
