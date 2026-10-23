@@ -372,7 +372,12 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             buffer.setSample(ch, sample, mixed);
     }
 
-    freeRunPpq = startPpq + beatsPerSample * buffer.getNumSamples();
+    // Advance only while the sequencer is running. Keep the autonomous clock
+    // bounded, but never rewrite the host transport position.
+    if (!hostPlaying)
+        freeRunPpq = std::fmod(startPpq + beatsPerSample * buffer.getNumSamples(), 4096.0);
+    else
+        freeRunPpq = startPpq + beatsPerSample * buffer.getNumSamples();
 }
 
 void FBTECHDRUMLOOPAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
