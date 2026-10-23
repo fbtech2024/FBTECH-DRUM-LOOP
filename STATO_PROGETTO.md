@@ -46,3 +46,9 @@ Branch unico di sviluppo: main
 - Passo corrente esposto all'editor e evidenziato in riproduzione.
 - Build Windows commit 9c821136 riuscita; CI ultimo commit in verifica. Nessun collaudo ATOM reale ancora effettuato.
 - Mancano mappatura configurabile, comandi/LED ATOM, registrazione MIDI, pad virtuali, nuova grafica FBTECH Music e localizzazione completa.
+
+## Pad virtuali — sviluppo 2026-10-23
+- Quattro pad GUI CASSA/RULLANTE/CHARLESTON/TOM collegati al motore tramite richieste atomiche.
+- Attivazione senza trasporto, preservando la sezione arrangiatore precedente.
+- Ultimo commit funzionale 4be80c2f: build CI da verificare; test audio GUI e hardware non ancora eseguiti.
+- Nota tecnica: i pad sono al momento quattro, non ancora una matrice di sedici; la pressione è un click, non velocity sensibile.
