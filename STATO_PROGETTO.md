@@ -132,3 +132,10 @@ Branch unico di sviluppo: main
 - I WAV dei 16 slot sono incorporati nel preset versione 9; lettura dei preset precedenti mantenuta (versioni 7/8).
 - La GUI mostra il nome del WAV caricato anche alla riapertura.
 - LIMITI: sequencer, MIDI Learn e volume per voce restano a quattro strumenti; i pad aggiuntivi non hanno ancora tracce step proprie. Compilazioni CI e test audio reali ancora da verificare.
+
+## Sequencer 16 tracce — 2026-10-23
+- Motore pattern A/B/C/D ampliato a 16 tracce x 16 step, trigger audio e registrazione dei pad GUI fino al sedicesimo.
+- Editor: selettore STEPS 1-4 / 5-8 / 9-12 / 13-16 per modificare tutte le tracce, quattro alla volta.
+- Preset formato 10 salva 256 step per pattern; caricamento compatibile dei vecchi pattern a quattro tracce (64 step), con azzeramento delle tracce aggiuntive.
+- MIDI Learn rimane a quattro voci; le tracce 5-16 richiedono WAV caricati per emettere suono.
+- Build e test audio/DAW della modifica ancora da verificare.
