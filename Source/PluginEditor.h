@@ -13,6 +13,9 @@ public:
 private:
     FBTECHDRUMLOOPAudioProcessor& processor;
     juce::Label title, tempoLabel, hint;
+    juce::TextButton viewButtons[3];
+    int activeView = 0;
+    void updateView();
     juce::Label instrumentLabels[4];
     juce::ComboBox stepPageSelector;
     int stepPage = 0;
