@@ -172,10 +172,11 @@ float FBTECHDRUMLOOPAudioProcessor::renderInstrument(int instrument)
         const auto& audio = data.audio;
         const double pos = samplePositions[instrument];
         const int index = static_cast<int>(pos);
-        if (index + 1 < audio.getNumSamples())
+        if (index >= 0 && index < audio.getNumSamples())
         {
             const float fraction = static_cast<float>(pos - index);
-            const float result = audio.getSample(0, index) * (1.0f - fraction) + audio.getSample(0, index + 1) * fraction;
+            const int nextIndex = juce::jmin(index + 1, audio.getNumSamples() - 1);
+            const float result = audio.getSample(0, index) * (1.0f - fraction) + audio.getSample(0, nextIndex) * fraction;
             samplePositions[instrument] += data.sampleRate / currentSampleRate;
             return result;
         }
