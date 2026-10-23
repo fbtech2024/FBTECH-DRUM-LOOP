@@ -196,3 +196,6 @@ Branch unico di sviluppo: main
 
 ## 2026-10-23 — BPM controllabile
 - Aggiunto grande controllo BPM 40-240 nella schermata RITMI e opzione SYNC DAW. Quando il trasporto host non suona, il loop manuale usa il BPM impostato dall'utente; quando il trasporto host suona e SYNC DAW e' attivo, segue il BPM host. BPM e sync sono persistiti nei preset (versione stato 13). Il motore WAV esistente resta invariato: nessuna libreria acustica reale e' stata ancora aggiunta. Touch pad, equalizzazione e profondita' restano da sviluppare e verificare. Build e prova DAW di questa revisione non ancora confermate.
+
+## 2026-10-23 — console: testi e BPM
+- Ridotta la guida tecnica visibile nella console a istruzioni musicali essenziali (RITMI, BATTERIA, EDITOR). Sincronizzato il controllo BPM con lo stato salvato senza interferire durante il trascinamento. Le due build precedenti del MASTER 8e6c36c8 sono risultate riuscite su GitHub Actions; questa revisione richiede una nuova compilazione. Nessun kit acustico incluso ancora.
