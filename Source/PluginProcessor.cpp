@@ -2,7 +2,7 @@
 #include "PluginEditor.h"
 #include <cmath>
 #include <cstring>
-#include <vector>
+#include <array>
 
 namespace { constexpr double twoPi = juce::MathConstants<double>::twoPi; }
 
@@ -256,7 +256,9 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     // drum notes work with ATOM and other controllers configured to send MIDI.
     // Events are dispatched at their sample offset for accurate timing.
     struct DrumHit { int offset, instrument; float velocity; };
-    std::vector<DrumHit> incomingHits;
+    // Fixed capacity avoids heap allocation on the realtime audio thread.
+    std::array<DrumHit, 256> incomingHits {};
+    size_t hitCount = 0;
     for (const auto metadata : midi)
     {
         const auto message = metadata.getMessage();
@@ -268,7 +270,8 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                              : note == 41 || note == 43 || note == 45 || note == 47 || note == 48 || note == 50 ? 3 : -1;
         if (instrument >= 0 && metadata.samplePosition >= 0
             && metadata.samplePosition < buffer.getNumSamples())
-            incomingHits.push_back({ metadata.samplePosition, instrument, message.getFloatVelocity() });
+            if (hitCount < incomingHits.size())
+                incomingHits[hitCount++] = { metadata.samplePosition, instrument, message.getFloatVelocity() };
     }
     midi.clear();
 
@@ -322,7 +325,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         if (songMode.load()) playingPattern.store(getSongPattern(0));
     }
     wasPlaying = true;
-    if (running && songFinished.load() && incomingHits.empty()) return;
+    if (running && songFinished.load() && hitCount == 0) return;
     // Reject invalid host tempo values before they reach sequencer timing math.
     if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
         tempoBpm = 120.0;
@@ -347,8 +350,8 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         const int step = static_cast<int>(std::fmod(std::fmod(stepPosition, static_cast<double>(stepCount))
                                                      + stepCount, static_cast<double>(stepCount)));
         // MIDI hits are audible independently of the sequencer transport.
-        for (const auto& hit : incomingHits)
-            if (hit.offset == sample)
+        for (size_t hitIndex = 0; hitIndex < hitCount; ++hitIndex)
+            if (const auto& hit = incomingHits[hitIndex]; hit.offset == sample)
             {
                 triggerInstrument(hit.instrument);
                 // Velocity shapes the built-in synthesised drum envelopes.
