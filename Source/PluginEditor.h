@@ -23,6 +23,8 @@ private:
     FBTECHDrumSkin skin;
     juce::Label title, tempoLabel, hint;
     juce::Slider bpmControl;
+    juce::Slider toneControl;
+    juce::Label toneCaption;
     juce::ToggleButton hostSyncToggle { "SYNC DAW" };
     juce::TextButton viewButtons[5];
     juce::ComboBox genreSelector, grooveSelector;
