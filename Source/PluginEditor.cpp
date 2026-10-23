@@ -479,12 +479,25 @@ bool FBTECHDRUMLOOPAudioProcessorEditor::loadSelectedGroove()
     }
     processor.setSongMode(false);
     songToggle.setToggleState(false, juce::dontSendNotification);
-    processor.selectPattern(0);
     const unsigned short masks[4] { grooves[id].kick, grooves[id].snare, grooves[id].hat, grooves[id].tom };
-    for (int pad = 0; pad < 16; ++pad)
-        for (int step = 0; step < 16; ++step)
-            processor.setStep(pad, step, pad < 4 && ((masks[pad] >> step) & 1u) != 0);
-    grooveDescription.setText("Ritmo caricato nel pattern A. Premi PLAY per ascoltare. Le modifiche si salvano nel progetto.", juce::dontSendNotification);
+    // Four editable arrangements: A original, B open hats, C syncopated
+    // kick, D end-of-bar fill. Preserve independent sample pads 5-16.
+    for (int bank = 0; bank < 4; ++bank)
+    {
+        processor.selectPattern(bank);
+        for (int pad = 0; pad < 16; ++pad)
+            for (int step = 0; step < 16; ++step)
+            {
+                bool hit = pad < 4 && ((masks[pad] >> step) & 1u) != 0;
+                if (bank == 1 && pad == 2 && step % 4 == 3) hit = true;
+                if (bank == 2 && pad == 0 && (step == 6 || step == 14)) hit = true;
+                if (bank == 3 && pad == 3 && step >= 12) hit = true;
+                if (bank == 3 && pad == 1 && step == 15) hit = true;
+                processor.setStep(pad, step, hit);
+            }
+    }
+    processor.selectPattern(0);
+    grooveDescription.setText("4 variazioni A-D caricate. A = base, B = hi-hat, C = cassa, D = fill. Premi PLAY.", juce::dontSendNotification);
     refreshPatternButtons();
     return true;
 }
