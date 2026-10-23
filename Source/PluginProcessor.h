@@ -69,6 +69,7 @@ public:
 
 private:
     static constexpr int instrumentCount = 4;
+    static constexpr int padCount = 16;
     static constexpr int stepCount = 16;
     std::atomic<bool> pattern[4][instrumentCount][stepCount]{};
     std::atomic<int> selectedPattern { 0 };
@@ -104,10 +105,10 @@ private:
     double hatEnvelope = 0.0, tomPhase = 0.0, tomEnvelope = 0.0;
     juce::Random random;
     struct SampleData { juce::AudioBuffer<float> audio; juce::String name; double sampleRate = 44100.0; };
-    std::shared_ptr<SampleData> samples[4];
-    std::shared_ptr<SampleData> activeSamples[4];
-    double samplePositions[4] { -1, -1, -1, -1 };
-    float sampleVelocities[4] { 1.0f, 1.0f, 1.0f, 1.0f };
+    std::shared_ptr<SampleData> samples[padCount];
+    std::shared_ptr<SampleData> activeSamples[padCount];
+    double samplePositions[padCount] {};
+    float sampleVelocities[padCount] {};
     juce::AudioFormatManager formatManager;
 
     void triggerInstrument(int instrument);
