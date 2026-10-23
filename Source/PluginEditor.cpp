@@ -14,7 +14,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     tempoLabel.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(tempoLabel);
 
-    hint.setText("16-step sequencer  |  Kick / Snare / Hi-Hat / Tom  |  DAW tempo sync", juce::dontSendNotification);
+    hint.setText("16 step | 4 voci | MIDI Learn: clic assegna, SHIFT+clic cancella | DAW sync", juce::dontSendNotification);
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
     addAndMakeVisible(hint);
 
