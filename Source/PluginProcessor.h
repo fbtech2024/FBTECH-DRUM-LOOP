@@ -33,6 +33,9 @@ public:
     void playPad(int instrument, float velocity = 1.0f) noexcept;
     void setRecording(bool enabled) noexcept { recording.store(enabled); }
     bool isRecording() const noexcept { return recording.load(); }
+    void armMidiLearn(int instrument) noexcept { midiLearnInstrument.store(instrument >= 0 && instrument < 4 ? instrument : -1); }
+    int getMidiLearnInstrument() const noexcept { return midiLearnInstrument.load(); }
+    int getLearnedNote(int instrument) const noexcept { return instrument >= 0 && instrument < 4 ? learnedNotes[instrument].load() : -1; }
     void selectPattern(int index) noexcept;
     void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
@@ -82,6 +85,8 @@ private:
     int songBarCount = 0;
     std::atomic<int> pendingPadHits[4] {};
     std::atomic<bool> recording { false };
+    std::atomic<int> midiLearnInstrument { -1 };
+    std::atomic<int> learnedNotes[4] { -1, -1, -1, -1 };
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
