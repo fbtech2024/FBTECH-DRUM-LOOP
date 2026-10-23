@@ -653,10 +653,10 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     else if (activeView == 1)
     {
         for (int i = 0; i < 16; ++i)
-            drumPads[i].setBounds(27 + (i % 4) * 235, 198 + (i / 4) * 85, 220, 73);
-        kitButton.setBounds(28, 562, 188, 38);
-        fillButton.setBounds(555, 562, 180, 38);
-        recordToggle.setBounds(754, 565, 185, 34);
+            drumPads[i].setBounds(27 + (i % 4) * 235, 190 + (i / 4) * 94, 220, 87);
+        kitButton.setBounds(28, 575, 188, 38);
+        fillButton.setBounds(555, 575, 180, 38);
+        recordToggle.setBounds(754, 578, 185, 34);
     }
     else if (activeView == 2)
     {
