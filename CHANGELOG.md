@@ -142,3 +142,6 @@
 
 ## 2026-10-23 — superficie console pad
 - Vista BATTERIA: aggiunta una superficie grafica a gradiente tipo metallo satinato, cornice e separatori per la griglia dei 16 pad touchscreen; componenti e funzioni restano quelli del MASTER. Modifica grafica effettiva JUCE, non un mockup. La grafica complessiva non e' ancora una console definitiva; kit WAV acustici non inclusi. Compilazione di questo commit da verificare.
+
+## 2026-10-23 — controllo tono audio
+- Implementato un filtro passa-basso master sul segnale drum (250-20000 Hz circa), regolato dalla nuova slider TONO SCURO/BRILLANTE in RITMI. Valore 1 bypass, 0 taglia gli acuti; impostazione salvata nei preset (stato versione 14). Non e' un equalizzatore multibanda o un controllo di riverbero/profondita'. Le build Windows e Mac Intel del precedente MASTER 47a5291a sono riuscite; la nuova revisione richiede compilazione e test di ascolto. Ancora nessuna libreria di campioni acustici reali integrata.
