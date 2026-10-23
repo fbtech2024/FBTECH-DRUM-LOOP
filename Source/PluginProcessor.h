@@ -39,6 +39,7 @@ public:
     bool loadKitFolder(const juce::File& folder);
     juce::String getSampleName(int instrument) const;
     double getTempo() const noexcept { return tempoBpm; }
+    int getCurrentStep() const noexcept { return currentStep.load(); }
     void setInstrumentVolume(int instrument, float value) noexcept;
     float getInstrumentVolume(int instrument) const noexcept;
     void setManualPlaying(bool playing) noexcept { if (playing) songFinished.store(false); manualPlaying.store(playing); }
@@ -81,6 +82,7 @@ private:
     double tempoBpm = 120.0;
     double freeRunPpq = 0.0;
     int lastStep = -1;
+    std::atomic<int> currentStep { -1 };
     std::atomic<bool> manualPlaying { false };
     bool wasPlaying = false;
     std::atomic<bool> fillRequested { false };
