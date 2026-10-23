@@ -52,3 +52,9 @@ Branch unico di sviluppo: main
 - Attivazione senza trasporto, preservando la sezione arrangiatore precedente.
 - Ultimo commit funzionale 4be80c2f: build CI da verificare; test audio GUI e hardware non ancora eseguiti.
 - Nota tecnica: i pad sono al momento quattro, non ancora una matrice di sedici; la pressione è un click, non velocity sensibile.
+
+## Griglia pad 4x4 — 2026-10-23
+- 16 pad GUI cliccabili in quattro righe, collegati alle quattro voci esistenti (quattro pad per voce).
+- NON sono ancora 16 strumenti indipendenti: servono nuovi slot audio, mapping MIDI, velocity WAV e test hardware.
+- Layout editor esteso; verifica di usabilità e compatibilità con finestre host ancora da eseguire.
+- Build dell'ultimo commit funzionale 708cc792 da verificare.
