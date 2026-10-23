@@ -342,7 +342,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshSongControls()
     for (int i = 0; i < 4; ++i)
     {
         volumeSliders[i].setValue(processor.getInstrumentVolume(i), juce::dontSendNotification);
-        loadButtons[i].setButtonText(processor.getSampleName(i).isNotEmpty() ? "WAV OK" : "LOAD WAV");
+        loadButtons[i].setButtonText(processor.getSampleName(i) == "Synth (default)" ? "LOAD WAV" : "WAV OK");
     }
     refreshPatternButtons();
 }
