@@ -274,7 +274,13 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
         const int note = message.getNoteNumber();
         const int learning = midiLearnInstrument.exchange(-1);
         if (learning >= 0 && learning < instrumentCount)
+        {
+            // A note belongs to at most one learned instrument.
+            for (int inst = 0; inst < instrumentCount; ++inst)
+                if (inst != learning && learnedNotes[inst].load() == note)
+                    learnedNotes[inst].store(-1);
             learnedNotes[learning].store(note);
+        }
         int instrument = -1;
         // Learned note assignments override the General MIDI defaults.
         for (int inst = 0; inst < instrumentCount; ++inst)
