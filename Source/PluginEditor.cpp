@@ -14,7 +14,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     tempoLabel.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(tempoLabel);
 
-    hint.setText("16 pad WAV: SHIFT+clic carica | 16 tracce | MIDI Learn per pagina: SHIFT+clic cancella", juce::dontSendNotification);
+    hint.setText("16 pad WAV SHIFT+clic | MIDI LEARN clic=nota, ALT+clic=CC volume (pag. 1), SHIFT=cancella", juce::dontSendNotification);
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
     addAndMakeVisible(hint);
 
@@ -26,6 +26,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     stepPageSelector.onChange = [this]
     {
         processor.armMidiLearn(-1); // Changing pages must not assign a note to a hidden pad.
+        processor.armVolumeCcLearn(-1);
         stepPage = juce::jlimit(0, 3, stepPageSelector.getSelectedId() - 1);
     };
     addAndMakeVisible(stepPageSelector);
@@ -71,13 +72,24 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         midiLearnButtons[inst].onClick = [this, inst]
         {
             const int pad = inst + 4 * stepPage;
-            if (juce::ModifierKeys::getCurrentModifiers().isShiftDown())
+            const auto mods = juce::ModifierKeys::getCurrentModifiers();
+            if (mods.isAltDown() && stepPage == 0)
+            {
+                processor.armMidiLearn(-1);
+                processor.armVolumeCcLearn(processor.getVolumeCcLearnInstrument() == inst ? -1 : inst);
+            }
+            else if (mods.isShiftDown())
             {
                 processor.clearMidiLearn(pad);
                 processor.armMidiLearn(-1);
+                if (stepPage == 0) processor.clearVolumeCcLearn(inst);
+                processor.armVolumeCcLearn(-1);
             }
             else
+            {
+                processor.armVolumeCcLearn(-1);
                 processor.armMidiLearn(processor.getMidiLearnInstrument() == pad ? -1 : pad);
+            }
         };
         addAndMakeVisible(midiLearnButtons[inst]);
         instrumentLabels[inst].setText(names[inst], juce::dontSendNotification);
@@ -452,8 +464,12 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
         const int pad = inst + 4 * stepPage;
         const int note = processor.getLearnedNote(pad);
         const bool armed = processor.getMidiLearnInstrument() == pad;
-        midiLearnButtons[inst].setButtonText(armed ? "PREMI UN PAD MIDI..." :
-            note >= 0 ? "NOTA MIDI " + juce::String(note) + " - CAMBIA" : "MIDI LEARN");
+        const int cc = stepPage == 0 ? processor.getLearnedVolumeCc(inst) : -1;
+        const bool ccArmed = stepPage == 0 && processor.getVolumeCcLearnInstrument() == inst;
+        midiLearnButtons[inst].setButtonText(ccArmed ? "MUOVI MANOPOLA MIDI..." :
+            armed ? "PREMI UN PAD MIDI..." :
+            note >= 0 ? "NOTA " + juce::String(note) + (cc >= 0 ? " / CC " + juce::String(cc) : "") :
+            cc >= 0 ? "MIDI LEARN / CC " + juce::String(cc) : "MIDI LEARN");
     }
     for (int row = 0; row < 4; ++row)
     {
@@ -464,6 +480,9 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
         loadButtons[row].setVisible(stepPage == 0);
         volumeSliders[row].setVisible(stepPage == 0);
     }
+    if (stepPage == 0)
+        for (int inst = 0; inst < 4; ++inst)
+            volumeSliders[inst].setValue(processor.getInstrumentVolume(inst), juce::dontSendNotification);
     // Live recording changes the atomic pattern from the audio thread.
     // Reflect those hits in the step buttons without firing their onClick callbacks.
     recordToggle.setToggleState(processor.isRecording(), juce::dontSendNotification);
