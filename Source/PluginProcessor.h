@@ -97,6 +97,7 @@ private:
     std::shared_ptr<SampleData> samples[4];
     std::shared_ptr<SampleData> activeSamples[4];
     double samplePositions[4] { -1, -1, -1, -1 };
+    float sampleVelocities[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     juce::AudioFormatManager formatManager;
 
     void triggerInstrument(int instrument);
