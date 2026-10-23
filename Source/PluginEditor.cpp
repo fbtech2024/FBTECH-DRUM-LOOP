@@ -139,6 +139,41 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         sectionBars[i].onValueChange = [this, i] { processor.setSongBars(i, static_cast<int>(sectionBars[i].getValue())); };
         addAndMakeVisible(sectionBars[i]);
     }
+    saveSongButton.onClick = [this]
+    {
+        chooser = std::make_unique<juce::FileChooser>("Save FBTECH song preset", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("FBTECH Song.fbdl"), "*.fbdl");
+        chooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::warnAboutOverwriting,
+            [this](const juce::FileChooser& fc)
+            {
+                auto file = fc.getResult();
+                if (file == juce::File{}) return;
+                if (!file.hasFileExtension(".fbdl")) file = file.withFileExtension(".fbdl");
+                juce::MemoryBlock data;
+                processor.getStateInformation(data);
+                songStatus.setText(file.replaceWithData(data.getData(), data.getSize()) ? "SONG PRESET SAVED" : "SAVE FAILED", juce::dontSendNotification);
+            });
+    };
+    loadSongButton.onClick = [this]
+    {
+        chooser = std::make_unique<juce::FileChooser>("Load FBTECH song preset", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.fbdl");
+        chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+            [this](const juce::FileChooser& fc)
+            {
+                const auto file = fc.getResult();
+                if (file == juce::File{}) return;
+                juce::MemoryBlock data;
+                if (!file.loadFileAsData(data) || data.getSize() == 0)
+                {
+                    songStatus.setText("LOAD FAILED", juce::dontSendNotification);
+                    return;
+                }
+                processor.setStateInformation(data.getData(), static_cast<int>(data.getSize()));
+                refreshSongControls();
+                songStatus.setText("SONG PRESET LOADED", juce::dontSendNotification);
+            });
+    };
+    addAndMakeVisible(saveSongButton);
+    addAndMakeVisible(loadSongButton);
     songStatus.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(songStatus);
     refreshPatternButtons();
@@ -192,11 +227,29 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     stopAtEndToggle.setBounds(30, 440, 150, 28);
     autoFillToggle.setBounds(190, 440, 130, 28);
     songStatus.setBounds(330, 440, 610, 28);
+    saveSongButton.setBounds(560, 610, 175, 32);
+    loadSongButton.setBounds(755, 610, 175, 32);
     kitButton.setBounds(26, 665, 170, 32);
     playButton.setBounds(344, 665, 105, 32);
     stopButton.setBounds(459, 665, 105, 32);
     fillButton.setBounds(580, 665, 175, 32);
     clearButton.setBounds(808, 665, 140, 32);
+}
+
+void FBTECHDRUMLOOPAudioProcessorEditor::refreshSongControls()
+{
+    songToggle.setToggleState(processor.isSongMode(), juce::dontSendNotification);
+    stopAtEndToggle.setToggleState(processor.isStopAtEnd(), juce::dontSendNotification);
+    autoFillToggle.setToggleState(processor.isAutoFill(), juce::dontSendNotification);
+    songLengthSlider.setValue(processor.getSongLength(), juce::dontSendNotification);
+    for (int i = 0; i < 8; ++i)
+    {
+        sectionPatterns[i].setSelectedId(processor.getSongPattern(i) + 1, juce::dontSendNotification);
+        sectionBars[i].setValue(processor.getSongBars(i), juce::dontSendNotification);
+    }
+    for (int i = 0; i < 4; ++i)
+        volumeSliders[i].setValue(processor.getInstrumentVolume(i), juce::dontSendNotification);
+    refreshPatternButtons();
 }
 
 void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
