@@ -139,6 +139,35 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         sectionBars[i].onValueChange = [this, i] { processor.setSongBars(i, static_cast<int>(sectionBars[i].getValue())); };
         addAndMakeVisible(sectionBars[i]);
     }
+    for (int i = 0; i < 8; ++i)
+        moveSlotSelector.addItem("SLOT " + juce::String(i + 1), i + 1);
+    moveSlotSelector.setSelectedId(1, juce::dontSendNotification);
+    addAndMakeVisible(moveSlotSelector);
+    auto moveSlot = [this](int direction)
+    {
+        // Only reorder while stopped, so the audio thread never sees a half-updated song.
+        if (processor.isManualPlaying() || processor.isTransportRunning())
+        {
+            songStatus.setText("STOP PLAYBACK BEFORE MOVING", juce::dontSendNotification);
+            return;
+        }
+        const int source = moveSlotSelector.getSelectedId() - 1;
+        const int destination = source + direction;
+        if (source < 0 || destination < 0 || destination >= processor.getSongLength()) return;
+        const int sourcePattern = processor.getSongPattern(source);
+        const int sourceBars = processor.getSongBars(source);
+        processor.setSongPattern(source, processor.getSongPattern(destination));
+        processor.setSongBars(source, processor.getSongBars(destination));
+        processor.setSongPattern(destination, sourcePattern);
+        processor.setSongBars(destination, sourceBars);
+        moveSlotSelector.setSelectedId(destination + 1, juce::dontSendNotification);
+        refreshSongControls();
+        songStatus.setText("SECTIONS REORDERED - SAVE SONG TO KEEP", juce::dontSendNotification);
+    };
+    moveEarlierButton.onClick = [moveSlot] { moveSlot(-1); };
+    moveLaterButton.onClick = [moveSlot] { moveSlot(1); };
+    addAndMakeVisible(moveEarlierButton);
+    addAndMakeVisible(moveLaterButton);
     saveSongButton.onClick = [this]
     {
         chooser = std::make_unique<juce::FileChooser>("Save FBTECH song preset", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("FBTECH Song.fbdl"), "*.fbdl");
@@ -227,6 +256,9 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     stopAtEndToggle.setBounds(30, 440, 150, 28);
     autoFillToggle.setBounds(190, 440, 130, 28);
     songStatus.setBounds(330, 440, 610, 28);
+    moveSlotSelector.setBounds(30, 610, 125, 32);
+    moveEarlierButton.setBounds(165, 610, 135, 32);
+    moveLaterButton.setBounds(310, 610, 135, 32);
     saveSongButton.setBounds(560, 610, 175, 32);
     loadSongButton.setBounds(755, 610, 175, 32);
     kitButton.setBounds(26, 665, 170, 32);
