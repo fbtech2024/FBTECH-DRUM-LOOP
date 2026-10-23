@@ -65,3 +65,7 @@
 ## Rifinitura interfaccia — 2026-10-23
 - Etichette pad aggiornate con percentuali di velocity.
 - Secondo clic sul MIDI Learn armato annulla l'apprendimento senza cancellare la nota salvata.
+
+## Fine Song Mode — 2026-10-23
+- Corretto il taglio delle code audio alla fine della song; niente nuovi step dopo STOP AT END, rendering WAV/synth continua.
+- Nuova build da verificare.
