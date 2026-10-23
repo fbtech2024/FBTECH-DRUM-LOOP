@@ -606,6 +606,23 @@ void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
     g.setColour(juce::Colour(0xff9dc6df));
     g.setFont(juce::Font(juce::FontOptions(9.0f, juce::Font::bold)));
     g.drawText("TECHNOLOGY  •  MUSIC  •  SOLUTIONS", 27, 55, 221, 18, juce::Justification::centredLeft);
+    if (activeView == 1)
+    {
+        // Brushed-metal style instrument deck; real controls remain JUCE
+        // components, including the 16 large touch pads.
+        juce::ColourGradient metal(juce::Colour(0xff26394d), 18.0f, 184.0f,
+                                   juce::Colour(0xff101b2b), 960.0f, 603.0f, false);
+        metal.addColour(0.45, juce::Colour(0xff1b3046));
+        g.setGradientFill(metal);
+        g.fillRoundedRectangle(19.0f, 181.0f, 943.0f, 444.0f, 18.0f);
+        g.setColour(juce::Colour(0xff6d8aa2).withAlpha(0.5f));
+        g.drawRoundedRectangle(19.0f, 181.0f, 943.0f, 444.0f, 18.0f, 2.0f);
+        for (int row = 0; row < 4; ++row)
+        {
+            g.setColour(juce::Colour(0xff3b566f).withAlpha(0.4f));
+            g.drawLine(29.0f, 283.0f + row * 94.0f, 949.0f, 283.0f + row * 94.0f, 1.0f);
+        }
+    }
     if (activeView == 0)
     {
         g.setColour(juce::Colour(0xff0c1d30));
