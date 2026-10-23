@@ -84,7 +84,8 @@ private:
     std::atomic<int> songBars[8] { 4, 8, 8, 4, 8, 8, 8, 4 };
     std::atomic<int> songSection { 0 };
     int songBarCount = 0;
-    std::atomic<int> pendingPadHits[4] {};
+    // Sixteen distinct GUI pad event slots; legacy sound routing remains four voices.
+    std::atomic<int> pendingPadHits[16] {};
     std::atomic<bool> recording { false };
     std::atomic<int> midiLearnInstrument { -1 };
     std::atomic<int> learnedNotes[4] { -1, -1, -1, -1 };
