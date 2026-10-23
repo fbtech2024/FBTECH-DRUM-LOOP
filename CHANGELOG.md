@@ -112,3 +112,6 @@
 ### 2026-10-23 — Separazione interfaccia
 - Introdotte tre viste SUONA / EDITOR RITMI / ARRANGIAMENTO e ridotta altezza plugin; motore audio invariato.
 - Mancano libreria ritmi e allineamento grafico al sito; CI e collaudo host in attesa.
+
+- UI skin JUCE personalizzata (LookAndFeel_V4): pulsanti arrotondati, stati hover/pressed, palette blu scuro/nero/bianco, menu e slider coerenti. Commit 017c8a8e; build e test DAW non ancora verificati.
+- Ricerca UX: Addictive Drums 2 usa navigazione per pagine e browser groove con anteprima; la libreria groove FBTECH e' ancora da implementare, senza inventare contenuti.
