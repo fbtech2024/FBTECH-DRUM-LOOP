@@ -163,3 +163,8 @@ Branch unico di sviluppo: main
 - Configurata `concurrency` con `cancel-in-progress: true` per i workflow Windows x64 e macOS Intel. Quando arriva un nuovo commit su `main`, le compilazioni precedenti dello stesso workflow/branch possono essere annullate; la compilazione più recente resta quella da controllare.
 - Motivo: molti commit ravvicinati stavano accumulando code di build; gli annullamenti dei run precedenti non indicano un errore di compilazione.
 - Build dell'ultimo commit ancora da verificare. Test audio e controller hardware non effettuati.
+
+## Feedback caricamento WAV per pad — 2026-10-23
+- Dopo SHIFT+clic sul pad, la scelta annullata non produce errori; caricamento riuscito mostra `WAV LOADED - PAD N`, campione non valido mostra `INVALID WAV - PAD N` nell'area stato.
+- Messaggi WAV preservati dal timer GUI, senza sovrascrittura immediata con lo stato Song Mode.
+- Build e test DAW della modifica ancora da verificare.
