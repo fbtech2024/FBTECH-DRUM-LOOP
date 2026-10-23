@@ -185,3 +185,5 @@ Branch unico di sviluppo: main
 - I 13 groove sono pattern ritmici programmati, NON campioni acustici professionali, non sono i 520 ritmi illustrativi dell'anteprima. Kit WAV caricabili separatamente. Il tempo segue la DAW.
 - Limitazioni: grafica semplificata rispetto al mockup fotografico, nessuna fotografia incorporata; le variazioni A-D non sono generate automaticamente dal browser; ricerca testuale, anteprime audio pre-renderizzate, e libreria estesa non ancora implementate.
 - Commit UI 2156d127; compilazione Windows/Mac Intel e prova in FBTECH Music ancora da verificare. Motore DSP non modificato.
+
+- Introdotto marchio FBTECH disegnato direttamente in JUCE (FB ciano, TECH bianco, sottotitolo), come nel riferimento visivo dell'utente. Corretta la preview: ASCOLTA non avvia il motore se il groove non e' stato caricato (ad esempio trasporto in corso). Build e test DAW in attesa.
