@@ -69,6 +69,13 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
             return;
         }
         processor.setManualPlaying(false);
+        // The audio callback may not have observed STOP yet; never overwrite
+        // atomic patterns while the previous groove is still sounding.
+        if (processor.isTransportRunning())
+        {
+            grooveDescription.setText("Riproduzione in arresto: premi ASCOLTA di nuovo.", juce::dontSendNotification);
+            return;
+        }
         if (loadSelectedGroove()) processor.setManualPlaying(true);
     };
     variationGuide.setText("A  BASE    B  HI-HAT    C  CASSA    D  FILL", juce::dontSendNotification);
