@@ -451,6 +451,14 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
             auto data = std::make_shared<SampleData>();
             data->audio.setSize(1, frames);
             std::memcpy(data->audio.getWritePointer(0), pcm.getData(), pcm.getSize());
+            // Untrusted preset audio must not inject NaN/Inf into the audio output.
+            bool validAudio = true;
+            for (int frame = 0; frame < frames; ++frame)
+            {
+                const float value = data->audio.getSample(0, frame);
+                if (!std::isfinite(value)) { validAudio = false; break; }
+            }
+            if (!validAudio) continue;
             data->sampleRate = rate;
             data->name = item->getStringAttribute("name").substring(0, 256);
             restored[instrument] = std::move(data);
