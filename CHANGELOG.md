@@ -57,3 +57,7 @@
 - Aggiornamento visivo dei passi registrati nella griglia 16-step.
 - La registrazione usa il banco attualmente in riproduzione, non quello accodato.
 - Verificata architettura quattro voci prima di avviare la migrazione a sedici.
+
+## Dinamica dei 16 pad GUI — 2026-10-23
+- Quattro intensità di colpo per ognuna delle quattro voci, mantenendo compatibilità con il motore attuale.
+- Espansione a 16 voci indipendenti ancora non implementata.
