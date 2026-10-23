@@ -1,5 +1,12 @@
 # CHANGELOG — FBTECH DRUM LOOP PRO
 
+## Sviluppo MIDI e feedback visivo — 2026-10-23
+- Gestione note MIDI in ingresso con mapping GM per quattro strumenti.
+- Riproduzione live MIDI anche con trasporto sequencer fermo.
+- Pubblicazione del passo corrente e indicatore visivo animato nella griglia.
+- Da verificare CI finale, test hardware ATOM, velocity WAV e sincronizzazione host.
+
+
 ## Sviluppo MASTER — 2026-10-23 (non ancora release pubblica)
 - Sequencer 16-step con 4 strumenti e suoni sintetici/WAV.
 - Kit WAV da cartella, volumi per voce, pattern A/B/C/D, FILL NEXT BAR.
