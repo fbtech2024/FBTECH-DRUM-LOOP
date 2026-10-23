@@ -20,3 +20,7 @@
 - Confermare CI sul commit finale, persistenza dei kit, compatibilità DAW e Mac Intel reale.
 - Verificare licenze JUCE e campioni prima della distribuzione.
 - Non dichiarare completata la release finché questi punti non sono chiusi.
+
+## Pad virtuali — 2026-10-23
+- Aggiunti quattro pad suonabili in italiano e trasferimento sicuro delle richieste dalla GUI al thread audio.
+- Interfaccia ampliata preservando l'arrangiatore; build e collaudo funzionale ancora da confermare.
