@@ -22,7 +22,12 @@ private:
     FBTECHDRUMLOOPAudioProcessor& processor;
     FBTECHDrumSkin skin;
     juce::Label title, tempoLabel, hint;
-    juce::TextButton viewButtons[3];
+    juce::TextButton viewButtons[5];
+    juce::ComboBox genreSelector, grooveSelector;
+    juce::TextButton grooveLoadButton { "CARICA RITMO" }, groovePreviewButton { "ASCOLTA" };
+    juce::Label grooveTitle, grooveDescription;
+    void loadSelectedGroove();
+    void refreshGrooves();
     int activeView = 0;
     void updateView();
     juce::Label instrumentLabels[4];
