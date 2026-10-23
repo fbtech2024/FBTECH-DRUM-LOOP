@@ -14,6 +14,8 @@ private:
     FBTECHDRUMLOOPAudioProcessor& processor;
     juce::Label title, tempoLabel, hint;
     juce::Label instrumentLabels[4];
+    juce::ComboBox stepPageSelector;
+    int stepPage = 0;
     juce::TextButton drumPads[16];
     juce::TextButton midiLearnButtons[4];
     juce::TextButton clearButton { "CLEAR PATTERN" };
