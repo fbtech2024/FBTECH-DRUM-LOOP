@@ -108,7 +108,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& fil
     if (instrument < 0 || instrument >= instrumentCount || !file.existsAsFile()) return false;
     std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
     if (!reader || reader->lengthInSamples <= 0 || reader->sampleRate < 8000.0 || reader->sampleRate > 384000.0
+        || !std::isfinite(reader->sampleRate)
         || static_cast<double>(reader->lengthInSamples) / reader->sampleRate > 60.0
+        || reader->lengthInSamples > 16 * 1024 * 1024
         || reader->numChannels == 0) return false;
     auto data = std::make_shared<SampleData>();
     const int frames = static_cast<int>(reader->lengthInSamples);
@@ -119,7 +121,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& fil
     {
         const float left = decoded.getSample(0, frame);
         const float right = decoded.getNumChannels() > 1 ? decoded.getSample(1, frame) : left;
-        data->audio.setSample(0, frame, 0.5f * (left + right));
+        const float mixed = 0.5f * (left + right);
+        if (!std::isfinite(mixed)) return false;
+        data->audio.setSample(0, frame, mixed);
     }
     data->sampleRate = reader->sampleRate;
     data->name = file.getFileName();
@@ -139,7 +143,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadKitFolder(const juce::File& folder)
         if (!file.existsAsFile()) return false;
         std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
         if (!reader || reader->lengthInSamples <= 0 || reader->sampleRate < 8000.0 || reader->sampleRate > 384000.0
+            || !std::isfinite(reader->sampleRate)
             || static_cast<double>(reader->lengthInSamples) / reader->sampleRate > 60.0
+            || reader->lengthInSamples > 16 * 1024 * 1024
             || reader->numChannels == 0) return false;
         auto data = std::make_shared<SampleData>();
         const int frames = static_cast<int>(reader->lengthInSamples);
@@ -150,7 +156,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadKitFolder(const juce::File& folder)
         {
             const float left = decoded.getSample(0, frame);
             const float right = decoded.getNumChannels() > 1 ? decoded.getSample(1, frame) : left;
-            data->audio.setSample(0, frame, 0.5f * (left + right));
+            const float mixed = 0.5f * (left + right);
+        if (!std::isfinite(mixed)) return false;
+        data->audio.setSample(0, frame, mixed);
         }
         data->sampleRate = reader->sampleRate;
         data->name = folder.getFileName() + " / " + file.getFileName();
