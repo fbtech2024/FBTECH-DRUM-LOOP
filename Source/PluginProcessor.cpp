@@ -182,9 +182,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadKitFolder(const juce::File& folder)
 
 juce::String FBTECHDRUMLOOPAudioProcessor::getSampleName(int instrument) const
 {
-    if (instrument < 0 || instrument >= instrumentCount) return {};
+    if (instrument < 0 || instrument >= padCount) return {};
     auto data = std::atomic_load(&samples[instrument]);
-    return data ? data->name : juce::String("Synth (default)");
+    return data ? data->name : (instrument < instrumentCount ? juce::String("Synth (default)") : juce::String("Empty pad"));
 }
 
 void FBTECHDRUMLOOPAudioProcessor::triggerInstrument(int instrument)
