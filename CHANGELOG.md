@@ -38,3 +38,7 @@
 - Aggiunto REGISTRA PAD: cattura note MIDI e pad GUI nella griglia del pattern selezionato, quantizzate ai sedicesimi.
 - Registrazione attiva solo a sequencer avviato e fuori Song Mode.
 - Funzione non ancora collaudata su hardware/DAW; build CI in corso.
+
+## MIDI Learn — 2026-10-23
+- Aggiunta assegnazione MIDI Learn per ciascuna delle quattro voci e persistenza nel preset v8.
+- Pulsanti GUI mostrano nota appresa; da verificare compilazione, conflitti di mapping e funzionamento ATOM.
