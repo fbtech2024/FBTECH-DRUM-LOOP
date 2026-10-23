@@ -100,3 +100,7 @@
 - ALT+clic sul MIDI LEARN delle quattro voci principali (pagina 1) per apprendere il CC di una manopola; il CC controlla il volume mixer 0–1,5.
 - Slider sincronizzati, mappature CC univoche e salvate nei preset v12.
 - Non verificato su hardware reale; nessun feedback LED o controllo trasporto ATOM.
+
+## Riduzione code CI — 2026-10-23
+- Workflow Windows e macOS Intel aggiornati con concorrenza per workflow/branch e annullamento delle compilazioni superate dai commit successivi.
+- Restano da verificare i run del MASTER finale e il comportamento in DAW.
