@@ -394,7 +394,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
                 if (running && recording.load() && !songMode.load())
                 {
                     const int recordedStep = static_cast<int>(std::floor(ppq * 4.0 + 0.5)) & 15;
-                    pattern[selectedPattern.load()][hit.instrument][recordedStep].store(true);
+                    pattern[playingPattern.load()][hit.instrument][recordedStep].store(true);
                 }
                 switch (hit.instrument)
                 {
