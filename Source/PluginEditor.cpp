@@ -62,8 +62,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     grooveLoadButton.onClick = [this] { loadSelectedGroove(); };
     groovePreviewButton.onClick = [this]
     {
-        loadSelectedGroove();
-        if (!processor.isTransportRunning()) processor.setManualPlaying(true);
+        if (loadSelectedGroove() && !processor.isTransportRunning()) processor.setManualPlaying(true);
     };
     for (juce::Component* c : { static_cast<juce::Component*>(&genreSelector), static_cast<juce::Component*>(&grooveSelector),
          static_cast<juce::Component*>(&grooveTitle), static_cast<juce::Component*>(&grooveDescription),
@@ -468,15 +467,15 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshGrooves()
         selected = grooveSelector.getItemId(0);
     grooveSelector.setSelectedId(selected, juce::sendNotificationSync);
 }
-void FBTECHDRUMLOOPAudioProcessorEditor::loadSelectedGroove()
+bool FBTECHDRUMLOOPAudioProcessorEditor::loadSelectedGroove()
 {
     const int id = grooveSelector.getSelectedId() - 1;
-    if (id < 0 || id >= static_cast<int>(std::size(grooves))) return;
+    if (id < 0 || id >= static_cast<int>(std::size(grooves))) return false;
     // Never replace the user's current pattern while playback is active.
     if (processor.isManualPlaying() || processor.isTransportRunning())
     {
         grooveDescription.setText("Ferma la riproduzione prima di caricare un nuovo ritmo.", juce::dontSendNotification);
-        return;
+        return false;
     }
     processor.setSongMode(false);
     songToggle.setToggleState(false, juce::dontSendNotification);
@@ -487,6 +486,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::loadSelectedGroove()
             processor.setStep(pad, step, pad < 4 && ((masks[pad] >> step) & 1u) != 0);
     grooveDescription.setText("Ritmo caricato nel pattern A. Premi PLAY per ascoltare. Le modifiche si salvano nel progetto.", juce::dontSendNotification);
     refreshPatternButtons();
+    return true;
 }
 void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
 {
@@ -552,6 +552,15 @@ void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
     g.fillRoundedRectangle(18.0f, 121.0f, 944.0f, 57.0f, 11.0f);
     g.setColour(juce::Colour(0xff1bbaf3));
     g.fillRoundedRectangle(24.0f, 84.0f, 932.0f, 2.0f, 1.0f);
+    // FBTECH brand wordmark: white TECHNOLOGY and blue FB, matching the reference.
+    g.setFont(juce::Font(juce::FontOptions(29.0f, juce::Font::bold)));
+    g.setColour(juce::Colour(0xff1bbaf3));
+    g.drawText("FB", 26, 15, 46, 38, juce::Justification::centredLeft);
+    g.setColour(juce::Colours::white);
+    g.drawText("TECH", 67, 15, 100, 38, juce::Justification::centredLeft);
+    g.setColour(juce::Colour(0xff9dc6df));
+    g.setFont(juce::Font(juce::FontOptions(9.0f, juce::Font::bold)));
+    g.drawText("TECHNOLOGY  •  MUSIC  •  SOLUTIONS", 27, 55, 221, 18, juce::Justification::centredLeft);
     if (activeView == 0)
     {
         g.setColour(juce::Colour(0xff0c1d30));
@@ -579,8 +588,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::paint(juce::Graphics& g)
 }
 void FBTECHDRUMLOOPAudioProcessorEditor::resized()
 {
-    title.setBounds(26, 16, 520, 43);
-    tempoLabel.setBounds(690, 20, 255, 31);
+    title.setBounds(258, 16, 500, 43);
+    tempoLabel.setBounds(755, 20, 191, 31);
     hint.setBounds(27, 93, 900, 25);
     for (int i = 0; i < 5; ++i)
         viewButtons[i].setBounds(26 + i * 187, 130, 178, 39);
