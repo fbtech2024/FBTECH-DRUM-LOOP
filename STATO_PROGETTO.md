@@ -1,24 +1,35 @@
-# STATO PROGETTO — FBTECH DRUM LOOP
+# FBTECH DRUM LOOP PRO — STATO MASTER
+Aggiornamento: 2026-10-23
+Repository unico: https://github.com/fbtech2024/FBTECH-DRUM-LOOP
+Branch unico di sviluppo: main
 
-**Versione:** 0.1.0 — prima base sorgente  
-**Repository master:** https://github.com/fbtech2024/FBTECH-DRUM-LOOP
+## Confermato dall'utente in DAW Windows
+- Plugin VST3 caricato, sequencer 16 step, 4 strumenti, kit WAV, volumi.
+- Pattern A/B/C/D, cambio quantizzato, fill manuale.
+- SONG MODE, AUTO FILL, STOP AT END.
+- Arrangiatore fino a 8 slot, pattern e battute configurabili.
+- Preset .fbdl SAVE SONG / LOAD SONG.
+- Spostamento sezioni: riscontro positivo utente (verificare commit esatto installato).
 
-## Stato attuale
-- [x] Repository GitHub creato e raggiungibile.
-- [x] Struttura progetto JUCE/CMake per target VST3 Windows x64.
-- [x] Sequencer a 16 step e quattro voci sintetiche: kick, snare, hi-hat, tom.
-- [x] Salvataggio/ripristino del pattern nello stato del plugin.
-- [x] Workflow GitHub Actions per build Windows e caricamento artifact.
-- [ ] Prima compilazione reale su GitHub Actions.
-- [ ] Correzione di eventuali errori rilevati dalla build.
-- [ ] Test in una DAW Windows.
-- [ ] Verifica finale della licenza per distribuzione.
+## Implementato ma non ancora certificato come release
+- ADD SLOT / REMOVE SLOT: commit 3e97781e, compilazioni avviate, collaudo finale non confermato.
+- Mac Intel: workflow presente; test reale del VST3 in DAW macOS non confermato.
+- Il caricamento di un WAV non salva ancora il campione audio nel preset; chiudendo/riaprendo si rischia di perdere il kit.
+- Validazione preset importati e gestione errori richiedono hardening.
+- Sicurezza del pattern condiviso fra thread GUI e audio da verificare (accessi concorrenti).
+- Comportamento del trasporto/STOP AT END in host diversi da verificare.
+- Licenza JUCE e diritti dei campioni da definire prima di distribuzione pubblica.
 
-## Limiti noti della prima base
-- I suoni sono sintetizzati internamente; caricamento di campioni WAV non è ancora implementato.
-- MIDI drag-and-drop, pattern multipli, controlli di volume per voce e uscite separate non sono ancora implementati.
-- Tempo e trasporto host devono essere verificati in DAW reali.
-- Una build verde prova la compilazione, non la piena compatibilità audio in ogni host.
+## Piano di chiusura: un solo ciclo di release
+1. Stabilizzare e verificare CI Windows/macOS del commit finale.
+2. Rendere persistenti i kit WAV (preferibilmente preset portabili, senza dipendere da percorsi locali).
+3. Proteggere stato/pattern e import da dati corrotti, evitando blocchi del thread audio.
+4. Verificare riapertura progetto DAW, tempo/trasporto, preset e arrangiamento completo.
+5. Verificare il plugin in una DAW Mac Intel reale.
+6. Controllare packaging, licenza JUCE e licenze dei sample; pubblicare solo dopo questi controlli.
 
-## Prossimo passo
-Caricare questi file nel repository, avviare GitHub Actions, leggere i log e correggere la prima build.
+## Regole
+- Nessun progetto parallelo, nessun nuovo branch, nessuna ricostruzione da zero.
+- Non confondere build riuscita con test reale.
+- Non richiedere all'utente microtest a ogni commit: preparare una build candidata finale e una checklist unica.
+- Aggiornare questo file e CHANGELOG.md prima di ogni rilascio.
