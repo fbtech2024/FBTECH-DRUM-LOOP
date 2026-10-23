@@ -279,7 +279,10 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
         const double ppq = startPpq + beatsPerSample * sample;
-        const int step = ((static_cast<int>(std::floor(ppq * 4.0 + 1.0e-7)) % stepCount) + stepCount) % stepCount;
+        // Keep the step counter bounded even after very long DAW sessions.
+        const double stepPosition = std::floor(ppq * 4.0 + 1.0e-7);
+        const int step = static_cast<int>(std::fmod(std::fmod(stepPosition, static_cast<double>(stepCount))
+                                                     + stepCount, static_cast<double>(stepCount)));
         if (step != lastStep)
         {
             if (step == 0)
