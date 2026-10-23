@@ -18,6 +18,14 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
     addAndMakeVisible(hint);
 
+    stepPageSelector.addItem("STEPS 1-4", 1);
+    stepPageSelector.addItem("STEPS 5-8", 2);
+    stepPageSelector.addItem("STEPS 9-12", 3);
+    stepPageSelector.addItem("STEPS 13-16", 4);
+    stepPageSelector.setSelectedId(1, juce::dontSendNotification);
+    stepPageSelector.onChange = [this] { stepPage = juce::jlimit(0, 3, stepPageSelector.getSelectedId() - 1); };
+    addAndMakeVisible(stepPageSelector);
+
     const juce::StringArray names { "KICK", "SNARE", "HI-HAT", "TOM" };
     const juce::StringArray padNames { "CASSA", "RULLANTE", "CHARLESTON", "TOM" };
     // Sixteen physical-style pads, four per instrument. The numbered pads
@@ -101,7 +109,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
             b->setColour(juce::TextButton::buttonOnColourId, juce::Colour(0xff0d9488));
             b->setColour(juce::TextButton::textColourOffId, juce::Colour(0xffdbe5ef));
             b->setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-            b->onClick = [this, inst, step, b] { processor.setStep(inst, step, b->getToggleState()); };
+            b->onClick = [this, inst, step, b] { processor.setStep(inst + 4 * stepPage, step, b->getToggleState()); };
             addAndMakeVisible(b);
         }
     }
@@ -358,6 +366,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
     }
     for (int bank = 0; bank < 4; ++bank)
         patternButtons[bank].setBounds(284 + bank * 120, 353, 112, 30);
+    stepPageSelector.setBounds(790, 353, 160, 30);
     songToggle.setBounds(30, 405, 130, 30);
     songLengthLabel.setBounds(175, 405, 85, 26);
     songLengthSlider.setBounds(260, 405, 95, 26);
@@ -440,6 +449,15 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
         midiLearnButtons[inst].setButtonText(armed ? "PREMI UN PAD MIDI..." :
             note >= 0 ? "NOTA MIDI " + juce::String(note) + " - CAMBIA" : "MIDI LEARN");
     }
+    for (int row = 0; row < 4; ++row)
+    {
+        const int pad = row + 4 * stepPage;
+        instrumentLabels[row].setText(stepPage == 0
+            ? juce::StringArray { "KICK", "SNARE", "HI-HAT", "TOM" }[row]
+            : "PAD " + juce::String(pad + 1), juce::dontSendNotification);
+        loadButtons[row].setVisible(stepPage == 0);
+        volumeSliders[row].setVisible(stepPage == 0);
+    }
     // Live recording changes the atomic pattern from the audio thread.
     // Reflect those hits in the step buttons without firing their onClick callbacks.
     recordToggle.setToggleState(processor.isRecording(), juce::dontSendNotification);
@@ -448,7 +466,7 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
         for (int step = 0; step < 16; ++step)
         {
             auto* button = stepButtons[instrument * 16 + step];
-            button->setToggleState(processor.getStep(instrument, step), juce::dontSendNotification);
+            button->setToggleState(processor.getStep(instrument + 4 * stepPage, step), juce::dontSendNotification);
             const bool active = step == activeStep;
             button->setColour(juce::TextButton::buttonColourId,
                               active ? juce::Colour(0xff2563eb) : juce::Colour(0xff202d3b));
