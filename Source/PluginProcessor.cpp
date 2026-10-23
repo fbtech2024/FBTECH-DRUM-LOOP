@@ -87,7 +87,7 @@ void FBTECHDRUMLOOPAudioProcessor::selectPattern(int index) noexcept
 bool FBTECHDRUMLOOPAudioProcessor::getStep(int instrument, int step) const
 {
     return instrument >= 0 && instrument < instrumentCount && step >= 0 && step < stepCount
-        ? pattern[selectedPattern.load()][instrument][step] : false;
+        ? pattern[selectedPattern.load()][instrument][step].load() : false;
 }
 
 void FBTECHDRUMLOOPAudioProcessor::setStep(int instrument, int step, bool enabled)
