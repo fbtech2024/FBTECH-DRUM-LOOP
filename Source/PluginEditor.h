@@ -22,6 +22,8 @@ private:
     FBTECHDRUMLOOPAudioProcessor& processor;
     FBTECHDrumSkin skin;
     juce::Label title, tempoLabel, hint;
+    juce::Slider bpmControl;
+    juce::ToggleButton hostSyncToggle { "SYNC DAW" };
     juce::TextButton viewButtons[5];
     juce::ComboBox genreSelector, grooveSelector;
     juce::TextButton grooveLoadButton { "CARICA RITMO" }, groovePreviewButton { "ASCOLTA" };
