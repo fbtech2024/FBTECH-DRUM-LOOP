@@ -97,6 +97,16 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     tempoLabel.setJustificationType(juce::Justification::centredRight);
     tempoLabel.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(tempoLabel);
+    bpmControl.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    bpmControl.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 76, 22);
+    bpmControl.setRange(40.0, 240.0, 1.0);
+    bpmControl.setValue(processor.getUserTempo(), juce::dontSendNotification);
+    bpmControl.setColour(juce::Slider::rotarySliderFillColourId, juce::Colour(0xff1bbaf3));
+    bpmControl.onValueChange = [this] { processor.setUserTempo(bpmControl.getValue()); };
+    addAndMakeVisible(bpmControl);
+    hostSyncToggle.setToggleState(processor.isSyncToHost(), juce::dontSendNotification);
+    hostSyncToggle.onClick = [this] { processor.setSyncToHost(hostSyncToggle.getToggleState()); };
+    addAndMakeVisible(hostSyncToggle);
 
     hint.setText("16 pad WAV SHIFT+clic | MIDI LEARN clic=nota, ALT+clic=CC volume (pag. 1), SHIFT=cancella", juce::dontSendNotification);
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
@@ -536,6 +546,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::updateView()
     grooveDescription.setVisible(library);
     grooveLoadButton.setVisible(library);
     groovePreviewButton.setVisible(library);
+    bpmControl.setVisible(library);
+    hostSyncToggle.setVisible(library);
     variationGuide.setVisible(library);
     for (auto& b : drumPads) b.setVisible(pads);
     kitButton.setVisible(pads);
@@ -635,6 +647,8 @@ void FBTECHDRUMLOOPAudioProcessorEditor::resized()
         grooveLoadButton.setBounds(315, 377, 194, 47);
         groovePreviewButton.setBounds(315, 438, 194, 47);
         variationGuide.setBounds(315, 506, 608, 30);
+        bpmControl.setBounds(779, 371, 135, 130);
+        hostSyncToggle.setBounds(778, 506, 140, 30);
     }
     else if (activeView == 1)
     {
