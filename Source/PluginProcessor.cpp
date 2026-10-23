@@ -107,7 +107,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadWav(int instrument, const juce::File& fil
 {
     if (instrument < 0 || instrument >= instrumentCount || !file.existsAsFile()) return false;
     std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
-    if (!reader || reader->lengthInSamples <= 0 || reader->lengthInSamples > 44100 * 60 || reader->numChannels == 0) return false;
+    if (!reader || reader->lengthInSamples <= 0 || reader->sampleRate < 8000.0 || reader->sampleRate > 384000.0
+        || static_cast<double>(reader->lengthInSamples) / reader->sampleRate > 60.0
+        || reader->numChannels == 0) return false;
     auto data = std::make_shared<SampleData>();
     data->audio.setSize(1, static_cast<int>(reader->lengthInSamples));
     if (!reader->read(&data->audio, 0, data->audio.getNumSamples(), 0, true, false)) return false;
@@ -128,8 +130,9 @@ bool FBTECHDRUMLOOPAudioProcessor::loadKitFolder(const juce::File& folder)
         const auto file = folder.getChildFile(names[i]);
         if (!file.existsAsFile()) return false;
         std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
-        if (!reader || reader->lengthInSamples <= 0 || reader->lengthInSamples > 44100 * 60
-            || reader->numChannels == 0 || reader->sampleRate <= 0.0) return false;
+        if (!reader || reader->lengthInSamples <= 0 || reader->sampleRate < 8000.0 || reader->sampleRate > 384000.0
+            || static_cast<double>(reader->lengthInSamples) / reader->sampleRate > 60.0
+            || reader->numChannels == 0) return false;
         auto data = std::make_shared<SampleData>();
         data->audio.setSize(1, static_cast<int>(reader->lengthInSamples));
         if (!reader->read(&data->audio, 0, data->audio.getNumSamples(), 0, true, false)) return false;
@@ -419,7 +422,7 @@ void FBTECHDRUMLOOPAudioProcessor::setStateInformation(const void* data, int siz
             const int frames = item->getIntAttribute("frames", 0);
             const double rate = item->getDoubleAttribute("rate", 0.0);
             if (instrument < 0 || instrument >= instrumentCount || frames <= 0
-                || frames > 44100 * 60 || rate < 8000.0 || rate > 384000.0) continue;
+                || static_cast<double>(frames) / rate > 60.0 || rate < 8000.0 || rate > 384000.0) continue;
             juce::MemoryBlock pcm;
             if (!pcm.fromBase64Encoding(item->getStringAttribute("pcm"))
                 || pcm.getSize() != static_cast<size_t>(frames) * sizeof(float)) continue;
