@@ -69,3 +69,10 @@ Branch unico di sviluppo: main
 - Eliminata uscita anticipata a SONG FINISHED per consentire il rendering delle code audio; verificare comportamento del trasporto e arresto host.
 - Commit motore 4433bd22; build Windows/macOS avviate ma non ancora certificate al momento della scrittura.
 - Restano aperti test reali con ATOM, 16 strumenti indipendenti, registrazione live, MIDI Learn, rifinitura UI.
+
+## Registrazione live base — 2026-10-23
+- Pulsante REGISTRA PAD collegato a flag atomico del motore audio.
+- Note MIDI e pad virtuali registrati nel pattern selezionato con quantizzazione al sedicesimo più vicino durante la riproduzione.
+- Registrazione disabilitata in Song Mode per evitare modifiche impreviste all'arrangiamento.
+- Questa prima implementazione registra attivazioni (on/off), non velocity per step né durata; non sono disponibili overdub undo o cancellazione selettiva.
+- Da testare sincronizzazione host, latenza, note ai confini della battuta, preset, GUI e controller ATOM. Build commit 97f9031d in coda al momento della verifica.
