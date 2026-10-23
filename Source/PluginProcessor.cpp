@@ -289,7 +289,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
             }
             for (int voice = 0; voice < instrumentCount; ++voice)
                 if (learnedVolumeCcs[voice].load() == cc)
-                    setInstrumentVolume(voice, static_cast<float>(message.getControllerValue()) / 127.0f);
+                    setInstrumentVolume(voice, 1.5f * static_cast<float>(message.getControllerValue()) / 127.0f);
             continue;
         }
         if (!message.isNoteOn()) continue;
