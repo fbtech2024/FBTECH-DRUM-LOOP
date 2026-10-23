@@ -306,7 +306,7 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     const double beatsPerSample = tempoBpm / (60.0 * currentSampleRate);
     // Re-anchor the free-running clock before its floating-point precision degrades
     // during multi-day sessions without a DAW transport position.
-    if (std::abs(freeRunPpq) > 4096.0)
+    if (!hostPlaying && std::abs(freeRunPpq) > 4096.0)
     {
         freeRunPpq = std::fmod(freeRunPpq, 4.0);
         lastStep = -1;
