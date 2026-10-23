@@ -14,7 +14,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     tempoLabel.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(tempoLabel);
 
-    hint.setText("16 pad WAV: SHIFT+clic carica | 4 voci sequencer | MIDI Learn: SHIFT+clic cancella", juce::dontSendNotification);
+    hint.setText("16 pad WAV: SHIFT+clic carica | 16 tracce | MIDI Learn per pagina: SHIFT+clic cancella", juce::dontSendNotification);
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
     addAndMakeVisible(hint);
 
@@ -66,13 +66,14 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         midiLearnButtons[inst].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff334155));
         midiLearnButtons[inst].onClick = [this, inst]
         {
+            const int pad = inst + 4 * stepPage;
             if (juce::ModifierKeys::getCurrentModifiers().isShiftDown())
             {
-                processor.clearMidiLearn(inst);
+                processor.clearMidiLearn(pad);
                 processor.armMidiLearn(-1);
             }
             else
-                processor.armMidiLearn(processor.getMidiLearnInstrument() == inst ? -1 : inst);
+                processor.armMidiLearn(processor.getMidiLearnInstrument() == pad ? -1 : pad);
         };
         addAndMakeVisible(midiLearnButtons[inst]);
         instrumentLabels[inst].setText(names[inst], juce::dontSendNotification);
@@ -444,8 +445,9 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
     // Highlight the active column without changing the stored step toggles.
     for (int inst = 0; inst < 4; ++inst)
     {
-        const int note = processor.getLearnedNote(inst);
-        const bool armed = processor.getMidiLearnInstrument() == inst;
+        const int pad = inst + 4 * stepPage;
+        const int note = processor.getLearnedNote(pad);
+        const bool armed = processor.getMidiLearnInstrument() == pad;
         midiLearnButtons[inst].setButtonText(armed ? "PREMI UN PAD MIDI..." :
             note >= 0 ? "NOTA MIDI " + juce::String(note) + " - CAMBIA" : "MIDI LEARN");
     }
