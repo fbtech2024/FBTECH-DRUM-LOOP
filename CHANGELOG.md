@@ -124,3 +124,6 @@
 - Commit UI 2156d127; compilazione Windows/Mac Intel e prova in FBTECH Music ancora da verificare. Motore DSP non modificato.
 
 - Introdotto marchio FBTECH disegnato direttamente in JUCE (FB ciano, TECH bianco, sottotitolo), come nel riferimento visivo dell'utente. Corretta la preview: ASCOLTA non avvia il motore se il groove non e' stato caricato (ad esempio trasporto in corso). Build e test DAW in attesa.
+
+## 2026-10-23 — variazioni ritmiche A-D
+- Ogni groove incorporato ora carica quattro pattern distinti: A base, B hi-hat aggiuntivi, C colpi di cassa sincopati, D fill di tom e rullante. Tutte le variazioni sono modificabili nell'editor e funzionano offline. Il caricamento sostituisce i quattro pattern correnti (solo a trasporto fermo): salvare prima il progetto se si vogliono conservare le modifiche. I pad 5-16 non vengono mantenuti nel nuovo preset. Questa e' una prima logica deterministica di variazione, non un generatore musicale intelligente. Compilazione e test host della modifica ancora da verificare.
