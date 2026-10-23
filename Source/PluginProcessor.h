@@ -31,6 +31,8 @@ public:
     void setStep(int instrument, int step, bool enabled);
     void clearPattern();
     void playPad(int instrument, float velocity = 1.0f) noexcept;
+    void setRecording(bool enabled) noexcept { recording.store(enabled); }
+    bool isRecording() const noexcept { return recording.load(); }
     void selectPattern(int index) noexcept;
     void requestFill() noexcept { fillRequested.store(true); }
     int getSelectedPattern() const noexcept { return selectedPattern.load(); }
@@ -79,6 +81,7 @@ private:
     std::atomic<int> songSection { 0 };
     int songBarCount = 0;
     std::atomic<int> pendingPadHits[4] {};
+    std::atomic<bool> recording { false };
     std::atomic<float> instrumentVolumes[4] { 1.0f, 1.0f, 1.0f, 1.0f };
     double currentSampleRate = 44100.0;
     double tempoBpm = 120.0;
