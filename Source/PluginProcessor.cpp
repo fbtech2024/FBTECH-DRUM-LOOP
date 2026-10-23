@@ -273,6 +273,9 @@ void FBTECHDRUMLOOPAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer
     }
     wasPlaying = true;
     if (songFinished.load()) return;
+    // Reject invalid host tempo values before they reach sequencer timing math.
+    if (!std::isfinite(tempoBpm) || tempoBpm < 1.0 || tempoBpm > 1000.0)
+        tempoBpm = 120.0;
     const double beatsPerSample = tempoBpm / (60.0 * currentSampleRate);
     const double startPpq = freeRunPpq;
     const int channels = buffer.getNumChannels();
