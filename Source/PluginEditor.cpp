@@ -14,7 +14,7 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     tempoLabel.setColour(juce::Label::textColourId, juce::Colour(0xff5eead4));
     addAndMakeVisible(tempoLabel);
 
-    hint.setText("16 step | 4 voci | MIDI Learn: clic assegna, SHIFT+clic cancella | DAW sync", juce::dontSendNotification);
+    hint.setText("16 pad WAV: SHIFT+clic carica | 4 voci sequencer | MIDI Learn: SHIFT+clic cancella", juce::dontSendNotification);
     hint.setColour(juce::Label::textColourId, juce::Colour(0xffa8b5c5));
     addAndMakeVisible(hint);
 
@@ -33,7 +33,19 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
         const float padVelocity = 0.4f + 0.2f * static_cast<float>(i / 4);
         drumPads[i].onClick = [this, i, padVelocity]
         {
-            processor.playPad(i, padVelocity);
+            if (juce::ModifierKeys::getCurrentModifiers().isShiftDown())
+            {
+                chooser = std::make_unique<juce::FileChooser>("Select WAV for pad " + juce::String(i + 1),
+                                                               juce::File{}, "*.wav");
+                chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+                    [this, i](const juce::FileChooser& fc)
+                    {
+                        if (processor.loadWav(i, fc.getResult()))
+                            drumPads[i].setButtonText(processor.getSampleName(i).substring(0, 18));
+                    });
+            }
+            else
+                processor.playPad(i, padVelocity);
         };
         addAndMakeVisible(drumPads[i]);
     }
