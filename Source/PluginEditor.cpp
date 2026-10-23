@@ -419,11 +419,15 @@ void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
         midiLearnButtons[inst].setButtonText(armed ? "PREMI UN PAD MIDI..." :
             note >= 0 ? "NOTA MIDI " + juce::String(note) + " - CAMBIA" : "MIDI LEARN");
     }
+    // Live recording changes the atomic pattern from the audio thread.
+    // Reflect those hits in the step buttons without firing their onClick callbacks.
+    recordToggle.setToggleState(processor.isRecording(), juce::dontSendNotification);
     const int activeStep = processor.isTransportRunning() ? processor.getCurrentStep() : -1;
     for (int instrument = 0; instrument < 4; ++instrument)
         for (int step = 0; step < 16; ++step)
         {
             auto* button = stepButtons[instrument * 16 + step];
+            button->setToggleState(processor.getStep(instrument, step), juce::dontSendNotification);
             const bool active = step == activeStep;
             button->setColour(juce::TextButton::buttonColourId,
                               active ? juce::Colour(0xff2563eb) : juce::Colour(0xff202d3b));
