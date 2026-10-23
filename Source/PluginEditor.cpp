@@ -376,7 +376,13 @@ void FBTECHDRUMLOOPAudioProcessorEditor::refreshPatternButtons()
 
 void FBTECHDRUMLOOPAudioProcessorEditor::timerCallback()
 {
-    songStatus.setText(processor.isSongFinished() ? juce::String("SONG FINISHED - press PLAY to restart") : processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / " + juce::String(processor.getSongLength()) : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
+    // Preserve user-facing preset errors and confirmations until the next action.
+    const auto status = songStatus.getText();
+    const bool isPresetFeedback = status == "LOAD FAILED" || status == "PRESET TOO LARGE"
+        || status == "INVALID OR OVERSIZED PRESET" || status == "INVALID SONG PRESET"
+        || status == "SONG PRESET LOADED" || status == "SONG PRESET SAVED";
+    if (!isPresetFeedback)
+        songStatus.setText(processor.isSongFinished() ? juce::String("SONG FINISHED - press PLAY to restart") : processor.isSongMode() ? juce::String("SONG ACTIVE - SECTION ") + juce::String(processor.getSongSection() + 1) + " / " + juce::String(processor.getSongLength()) : juce::String("SONG OFF - manual pattern selection"), juce::dontSendNotification);
     const int playing = processor.getPlayingPattern();
     const int queued = processor.getQueuedPattern();
     for (int bank = 0; bank < 4; ++bank)
