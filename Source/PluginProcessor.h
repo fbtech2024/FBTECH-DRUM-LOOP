@@ -43,6 +43,7 @@ public:
     float getInstrumentVolume(int instrument) const noexcept;
     void setManualPlaying(bool playing) noexcept { if (playing) songFinished.store(false); manualPlaying.store(playing); }
     bool isManualPlaying() const noexcept { return manualPlaying.load(); }
+    bool isTransportRunning() const noexcept { return transportRunning.load(); }
     void setSongMode(bool enabled) noexcept { songMode.store(enabled); }
     bool isSongMode() const noexcept { return songMode.load(); }
     void setSongBars(int section, int bars) noexcept;
