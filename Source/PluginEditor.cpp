@@ -25,7 +25,10 @@ FBTECHDRUMLOOPAudioProcessorEditor::FBTECHDRUMLOOPAudioProcessorEditor(FBTECHDRU
     for (int i = 0; i < 16; ++i)
     {
         const int instrument = i % 4;
-        drumPads[i].setButtonText(padNames[instrument] + "  " + juce::String(40 + 20 * (i / 4)) + "%");
+        const auto loadedName = processor.getSampleName(i);
+        drumPads[i].setButtonText(loadedName != "Empty pad" && loadedName != "Synth (default)"
+            ? loadedName.substring(0, 18)
+            : padNames[instrument] + "  " + juce::String(40 + 20 * (i / 4)) + "%");
         drumPads[i].setColour(juce::TextButton::buttonColourId, juce::Colour(0xff164e63));
         drumPads[i].setColour(juce::TextButton::buttonOnColourId, juce::Colour(0xff0891b2));
         // Four velocity levels per instrument make the 4x4 pad grid
